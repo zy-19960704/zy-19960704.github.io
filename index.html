@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>反洗钱监控系统原型 - 带标记</title>
+  <style>
+    /* ========================================
+       Design Tokens (prototype-designer 规范)
+       ======================================== */
+    :root {
+      --primary-900: #0F172A;
+      --primary-800: #1E293B;
+      --primary-700: #334155;
+      --primary-600: #475569;
+      --primary-500: #64748B;
+      --primary-400: #94A3B8;
+      --primary-300: #CBD5E1;
+      --primary-200: #E2E8F0;
+      --primary-100: #F1F5F9;
+      --primary-50: #F8FAFC;
+      
+      --brand-600: #2563EB;
+      --brand-500: #3B82F6;
+      --brand-400: #60A5FA;
+      --brand-100: #DBEAFE;
+      --brand-50: #EFF6FF;
+      
+      --success-500: #22C55E;
+      --success-100: #DCFCE7;
+      --warning-500: #F59E0B;
+      --warning-100: #FEF3C7;
+      --error-500: #EF4444;
+      --error-100: #FEE2E2;
+      
+      --text-primary: #1E293B;
+      --text-secondary: #64748B;
+      --text-tertiary: #94A3B8;
+      
+      --bg-page: #F8FAFC;
+      --bg-card: #FFFFFF;
+      --bg-hover: #F1F5F9;
+      
+      --border-default: #E2E8F0;
+      --border-hover: #CBD5E1;
+      
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --text-xs: 12px;
+      --text-sm: 13px;
+      --text-base: 14px;
+      --text-lg: 16px;
+      --text-xl: 18px;
+      --text-2xl: 20px;
+      
+      --font-normal: 400;
+      --font-medium: 500;
+      --font-semibold: 600;
+      --font-bold: 700;
+      
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+      
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      color: var(--text-primary);
+      background: var(--bg-page);
+      line-height: 1.5;
+    }
+
+    /* ========================================
+       整体布局 (prototype-designer 规范)
+       左侧导航 + 右侧内容
+       ======================================== */
+    .app {
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ========================================
+       侧边栏导航 (prototype-designer 规范)
+       固定在左侧，深色背景
+       ======================================== */
+    .sidebar {
+      width: 220px;
+      background: var(--primary-900);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    
+    .sidebar-brand {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: 0 var(--space-5);
+      font-size: var(--text-lg);
+      font-weight: var(--font-semibold);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .sidebar-logo {
+      width: 36px;
+      height: 36px;
+      background: var(--brand-500);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-sm);
+      font-weight: var(--font-bold);
+    }
+    
+    .sidebar-nav {
+      flex: 1;
+      padding: var(--space-4) 0;
+      overflow-y: auto;
+    }
+    
+    .nav-section {
+      margin-bottom: var(--space-2);
+    }
+    
+    .nav-section-title {
+      padding: var(--space-2) var(--space-5);
+      font-size: var(--text-xs);
+      color: var(--primary-400);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-5);
+      cursor: pointer;
+      font-size: var(--text-sm);
+      transition: all 0.2s;
+      margin: 0 var(--space-2);
+      border-radius: var(--radius-md);
+    }
+    
+    .nav-item:hover { background: rgba(255,255,255,0.08); }
+    .nav-item.active { 
+      background: var(--brand-500);
+      color: white;
+    }
+    
+    .nav-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    
+    .sidebar-footer {
+      padding: var(--space-4) var(--space-5);
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--text-sm);
+    }
+    
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      background: var(--primary-700);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    /* ========================================
+       主内容区 (prototype-designer 规范)
+       ======================================== */
+    .main-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .main {
+      flex: 1;
+      padding: var(--space-6);
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* ========================================
+       页面内容区
+       ======================================== */
+    .page-content { display: none; flex-direction: column; overflow: hidden; min-height: 0; flex: 1; }
+    .page-content.active { display: flex; }
+
+    /* ========================================
+       卡片组件 (prototype-designer 规范)
+       ======================================== */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .card-header {
+      padding: var(--space-4) var(--space-5);
+      border-bottom: 1px solid var(--border-default);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    
+    .card-body { padding: var(--space-5); }
+    
+    .section-title {
+      font-size: var(--text-base);
+      font-weight: var(--font-semibold);
+    }
+
+    /* 查询卡片 - 固定高度 */
+    .query-card { flex-shrink: 0; }
+    
+    /* 表格卡片 - 占据剩余空间 */
+    .table-card {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* ========================================
+       表单组件 (prototype-designer 规范)
+       ======================================== */
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-4);
+      align-items: end;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+      position: relative;
+    }
+    
+    .form-label {
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      color: var(--text-secondary);
+    }
+    
+    .input {
+      height: 40px;
+      padding: 0 var(--space-3);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      background: white;
+      transition: all 0.2s;
+      width: 100%;
+    }
+    
+    .input:focus {
+      outline: none;
+      border-color: var(--brand-500);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+    }
+    
+    .select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      padding-right: 32px;
+    }
+    
+    .textarea {
+      width: 100%;
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-base);
+      resize: vertical;
+      min-height: 80px;
+      font-family: inherit;
+    }
+
+    /* ========================================
+       按钮组件 (prototype-designer 规范)
+       ======================================== */
+    .btn {
+      height: 36px;
+      padding: 0 var(--space-4);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-1);
+    }
+    
+    .btn-primary {
+      background: var(--brand-500);
+      color: white;
+      border-color: var(--brand-500);
+    }
+    
+    .btn-primary:hover { background: var(--brand-600); }
+    
+    .btn-secondary {
+      background: white;
+      color: var(--text-primary);
+      border-color: var(--border-default);
+    }
+    
+    .btn-secondary:hover { background: var(--bg-hover); }
+    
+    .btn-text {
+      background: transparent;
+      border: none;
+      color: var(--brand-500);
+      padding: 0 var(--space-2);
+    }
+    
+    .btn-text:hover { background: var(--brand-50); }
+    
+    .btn-sm { height: 28px; font-size: var(--text-xs); padding: 0 var(--space-3); }
+
+    /* ========================================
+       表格组件 (prototype-designer 规范)
+       ======================================== */
+    .table-wrapper {
+      flex: 1;
+      overflow: auto;
+      min-height: 0;
+    }
+    
+    .table-container { overflow-x: auto; }
+    
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .table th, .table td {
+      padding: var(--space-3) var(--space-4);
+      text-align: left;
+      border-bottom: 1px solid var(--border-default);
+      font-size: var(--text-sm);
+    }
+    
+    .table th {
+      background: var(--bg-hover);
+      font-weight: var(--font-semibold);
+      color: var(--text-secondary);
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    
+    .table tr:hover td { background: var(--bg-hover); }
+
+    /* ========================================
+       标签组件
+       ======================================== */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 22px;
+      padding: 0 var(--space-2);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-xs);
+      font-weight: var(--font-medium);
+    }
+    
+    .tag-success { background: var(--success-100); color: var(--success-500); }
+    .tag-warning { background: var(--warning-100); color: var(--warning-500); }
+    .tag-error { background: var(--error-100); color: var(--error-500); }
+    .tag-brand { background: var(--brand-100); color: var(--brand-600); }
+
+    /* ========================================
+       分页组件
+       ======================================== */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-4);
+      border-top: 1px solid var(--border-default);
+      flex-shrink: 0;
+    }
+    
+    .page-btn {
+      min-width: 28px;
+      height: 28px;
+      padding: 0 var(--space-2);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      background: white;
+      font-size: var(--text-sm);
+      cursor: pointer;
+    }
+    
+    .page-btn:hover { border-color: var(--brand-500); color: var(--brand-500); }
+    .page-btn.active { background: var(--brand-500); border-color: var(--brand-500); color: white; }
+    .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ========================================
+       弹窗组件
+       ======================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .modal-overlay.active { display: flex; }
+    
+    .modal {
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      width: 600px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .modal-lg { width: 800px; }
+    
+    .modal-header {
+      padding: var(--space-4) var(--space-5);
+      border-bottom: 1px solid var(--border-default);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .modal-title { font-size: var(--text-lg); font-weight: var(--font-semibold); }
+    
+    .modal-close {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      font-size: 18px;
+      color: var(--text-tertiary);
+    }
+    
+    .modal-close:hover { background: var(--bg-hover); }
+    
+    .modal-body {
+      padding: var(--space-5);
+      overflow-y: auto;
+      flex: 1;
+    }
+    
+    .modal-footer {
+      padding: var(--space-3) var(--space-5);
+      border-top: 1px solid var(--border-default);
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--space-2);
+      background: var(--bg-hover);
+    }
+
+    /* ========================================
+       Toast 提示
+       ======================================== */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 2000;
+    }
+    
+    .toast {
+      background: var(--primary-800);
+      color: white;
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-2);
+      box-shadow: var(--shadow-md);
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* ========================================
+       PRDMARK 标记 (prototype-marker 规范)
+       ======================================== */
+    
+    /* 黄色圆形标记徽章 */
+    .mark-badge {
+      position: absolute;
+      min-width: 18px;
+      height: 18px;
+      background: #F5C518;
+      color: #333;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+      cursor: pointer;
+      z-index: 5;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      transition: transform 0.15s;
+      line-height: 1;
+    }
+    
+    .mark-badge:hover {
+      transform: scale(1.2);
+    }
+    
+    .mark-badge.active {
+      background: var(--primary);
+      color: white;
+    }
+    
+    /* 组件包装器 */
+    .component-wrapper {
+      position: relative;
+    }
+    
+    /* 高亮状态 */
+    .component-wrapper.mark-highlight {
+      outline: 2px solid var(--brand-500);
+      outline-offset: 4px;
+      border-radius: var(--radius-md);
+    }
+
+    /* ========================================
+       右侧备注面板 (prototype-marker 规范)
+       ======================================== */
+    .notes-panel {
+      width: 320px;
+      background: white;
+      border-left: 1px solid var(--border-default);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      transition: width 0.25s ease, opacity 0.25s ease;
+      overflow: hidden;
+    }
+    
+    .notes-panel.collapsed {
+      width: 0;
+      opacity: 0;
+      border-left: none;
+    }
+    
+    .notes-panel-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-default);
+      background: #FAFAFA;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      flex-shrink: 0;
+    }
+    
+    .notes-panel-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0;
+    }
+    
+    .note-card {
+      padding: 10px 16px;
+      border-bottom: 1px solid #F0F0F0;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    
+    .note-card:hover {
+      background: #F8F9FA;
+    }
+    
+    .note-card.active {
+      background: #EBF2FA;
+      border-left: 3px solid var(--primary);
+      padding-left: 13px;
+    }
+    
+    .note-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    
+    .note-card-badge {
+      width: 20px;
+      height: 20px;
+      background: #F5C518;
+      color: #333;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .note-card.active .note-card-badge {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .note-card-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .note-card-type {
+      font-size: 11px;
+      color: #7B61FF;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    
+    .note-card-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-top: 2px;
+    }
+    
+    .note-card-meta {
+      font-size: 11px;
+      color: #999;
+      margin-top: 4px;
+    }
+    
+    .note-card-detail {
+      display: none;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border-default);
+    }
+    
+    .note-card.active .note-card-detail {
+      display: block;
+    }
+    
+    .note-detail-section {
+      margin-bottom: 8px;
+    }
+    
+    .note-detail-section h5 {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    
+    .note-detail-section ul {
+      padding-left: 14px;
+      font-size: 12px;
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+    
+    .note-detail-section li {
+      margin: 2px 0;
+    }
+    
+    .note-detail-default {
+      display: inline-block;
+      background: #E8F5E9;
+      color: #2E7D32;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .notes-panel-footer {
+      padding: 8px 16px;
+      border-top: 1px solid var(--border-default);
+      background: #FAFAFA;
+      font-size: 11px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    /* 面板切换按钮 */
+    .notes-toggle {
+      position: fixed;
+      top: 80px;
+      right: 340px;
+      width: 32px;
+      height: 32px;
+      background: white;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+      transition: right 0.25s ease;
+    }
+    
+    .notes-toggle:hover {
+      background: var(--bg-hover);
+    }
+    
+    .notes-panel.collapsed ~ .notes-toggle {
+      right: 8px;
+    }
+  </style>
+</head>
+<body>
+  <!-- ========================================
+       整体布局：左侧导航 + 中间内容 + 右侧面板
+       ======================================== -->
+  <div class="app">
+    <!-- 左侧导航 (prototype-designer) -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-logo">AML</div>
+        <span>反洗钱监控系统</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">指标管理</div>
+          <div class="nav-item active" data-page="atomic">
+            <span class="nav-icon">📊</span>
+            <span>原子指标</span>
+          </div>
+          <div class="nav-item" data-page="composite">
+            <span class="nav-icon">🔗</span>
+            <span>复合指标</span>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">预警管理</div>
+          <div class="nav-item" data-page="alert">
+            <span class="nav-icon">⚠️</span>
+            <span>预警复核</span>
+          </div>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar">👤</div>
+          <div>
+            <div style="font-weight: 500;">合规分析师</div>
+            <div style="font-size: 12px; color: var(--primary-400);">合规部</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 中间主内容区 (prototype-designer) -->
+    <div class="main-wrapper">
+      <main class="main">
+        <!-- ===== 原子指标管理页 ===== -->
+        <div id="page-atomic" class="page-content active">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 16px; flex-shrink: 0;">
+            <button class="btn btn-primary" onclick="openAtomicModal()">＋ 新增指标</button>
+          </div>
+
+          <!-- 查询条件 -->
+          <div class="card query-card">
+            <div class="card-body">
+              <div class="form-row">
+                <div class="form-group component-wrapper" id="widget-1">
+                  <span class="mark-badge" data-note="1">1</span>
+                  <label class="form-label">指标名称</label>
+                  <input type="text" class="input" id="atomic-search-name" placeholder="请输入指标名称">
+                </div>
+                <div class="form-group component-wrapper" id="widget-2">
+                  <span class="mark-badge" data-note="2">2</span>
+                  <label class="form-label">场景类型</label>
+                  <select class="input select" id="atomic-search-scenario">
+                    <option value="all">全部</option>
+                    <option value="内幕交易">内幕交易</option>
+                    <option value="场外配资">场外配资</option>
+                    <option value="非法集资">非法集资</option>
+                    <option value="疑似贪腐">疑似贪腐</option>
+                  </select>
+                </div>
+                <div class="form-group component-wrapper" id="widget-3">
+                  <span class="mark-badge" data-note="3">3</span>
+                  <label class="form-label">子类</label>
+                  <select class="input select" id="atomic-search-subcategory">
+                    <option value="all">全部</option>
+                    <option value="客户特定身份">客户特定身份</option>
+                    <option value="交易行为">交易行为</option>
+                    <option value="盯市">盯市</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">&nbsp;</label>
+                  <div style="display: flex; gap: 8px;">
+                    <div class="component-wrapper" id="widget-4">
+                      <span class="mark-badge" data-note="4">4</span>
+                      <button class="btn btn-primary" onclick="queryAtomic()">查询</button>
+                    </div>
+                    <div class="component-wrapper" id="widget-5">
+                      <span class="mark-badge" data-note="5">5</span>
+                      <button class="btn btn-secondary" onclick="resetAtomic()">重置</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 表格 -->
+          <div class="card table-card">
+            <div class="card-header">
+              <div class="component-wrapper" id="widget-6">
+                <span class="mark-badge" data-note="6">6</span>
+                <span class="section-title">原子指标列表</span>
+              </div>
+              <span style="font-size: 12px; color: var(--text-tertiary);">共 <span id="atomic-total">10</span> 条</span>
+            </div>
+            <div class="table-wrapper">
+              <div class="table-container">
+                <table class="table" id="atomic-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>指标名称</th>
+                      <th>场景类型</th>
+                      <th>子类</th>
+                      <th>描述</th>
+                      <th>状态</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="pagination" id="atomic-pagination"></div>
+          </div>
+        </div>
+
+        <!-- ===== 复合指标管理页 ===== -->
+        <div id="page-composite" class="page-content">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 16px; flex-shrink: 0;">
+            <button class="btn btn-primary" onclick="openCompositeModal()">＋ 新增复合指标</button>
+          </div>
+
+          <div class="card query-card">
+            <div class="card-body">
+              <div class="form-row">
+                <div class="form-group component-wrapper" id="widget-7">
+                  <span class="mark-badge" data-note="7">7</span>
+                  <label class="form-label">指标名称</label>
+                  <input type="text" class="input" id="composite-search-name" placeholder="请输入指标名称">
+                </div>
+                <div class="form-group component-wrapper" id="widget-8">
+                  <span class="mark-badge" data-note="8">8</span>
+                  <label class="form-label">场景类型</label>
+                  <select class="input select" id="composite-search-scenario">
+                    <option value="all">全部</option>
+                    <option value="内幕交易">内幕交易</option>
+                    <option value="场外配资">场外配资</option>
+                    <option value="非法集资">非法集资</option>
+                    <option value="疑似贪腐">疑似贪腐</option>
+                  </select>
+                </div>
+                <div class="form-group component-wrapper" id="widget-9">
+                  <span class="mark-badge" data-note="9">9</span>
+                  <label class="form-label">状态</label>
+                  <select class="input select" id="composite-search-status">
+                    <option value="all">全部</option>
+                    <option value="生效">生效</option>
+                    <option value="失效">失效</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">&nbsp;</label>
+                  <div style="display: flex; gap: 8px;">
+                    <div class="component-wrapper" id="widget-10">
+                      <span class="mark-badge" data-note="10">10</span>
+                      <button class="btn btn-primary" onclick="queryComposite()">查询</button>
+                    </div>
+                    <div class="component-wrapper" id="widget-11">
+                      <span class="mark-badge" data-note="11">11</span>
+                      <button class="btn btn-secondary" onclick="resetComposite()">重置</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card table-card">
+            <div class="card-header">
+              <div class="component-wrapper" id="widget-12">
+                <span class="mark-badge" data-note="12">12</span>
+                <span class="section-title">复合指标列表</span>
+              </div>
+              <span style="font-size: 12px; color: var(--text-tertiary);">共 <span id="composite-total">4</span> 条</span>
+            </div>
+            <div class="table-wrapper">
+              <div class="table-container">
+                <table class="table" id="composite-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>指标名称</th>
+                      <th>场景类型</th>
+                      <th>逻辑公式</th>
+                      <th>状态</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="pagination" id="composite-pagination"></div>
+          </div>
+        </div>
+
+        <!-- ===== 预警复核页 ===== -->
+        <div id="page-alert" class="page-content">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 16px; flex-shrink: 0;">
+            <button class="btn btn-secondary">📥 导出</button>
+          </div>
+
+          <div class="card query-card">
+            <div class="card-body">
+              <div class="form-row">
+                <div class="form-group component-wrapper" id="widget-13">
+                  <span class="mark-badge" data-note="13">13</span>
+                  <label class="form-label">客户名称</label>
+                  <input type="text" class="input" id="alert-search-customer" placeholder="请输入客户名称">
+                </div>
+                <div class="form-group component-wrapper" id="widget-14">
+                  <span class="mark-badge" data-note="14">14</span>
+                  <label class="form-label">客户号</label>
+                  <input type="text" class="input" id="alert-search-customerid" placeholder="请输入客户号">
+                </div>
+                <div class="form-group component-wrapper" id="widget-15">
+                  <span class="mark-badge" data-note="15">15</span>
+                  <label class="form-label">场景类型</label>
+                  <select class="input select" id="alert-search-scenario">
+                    <option value="all">全部</option>
+                    <option value="内幕交易">内幕交易</option>
+                    <option value="场外配资">场外配资</option>
+                    <option value="非法集资">非法集资</option>
+                    <option value="疑似贪腐">疑似贪腐</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">&nbsp;</label>
+                  <div style="display: flex; gap: 8px;">
+                    <div class="component-wrapper" id="widget-16">
+                      <span class="mark-badge" data-note="16">16</span>
+                      <button class="btn btn-primary" onclick="queryAlert()">查询</button>
+                    </div>
+                    <div class="component-wrapper" id="widget-17">
+                      <span class="mark-badge" data-note="17">17</span>
+                      <button class="btn btn-secondary" onclick="resetAlert()">重置</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card table-card">
+            <div class="card-header">
+              <div class="component-wrapper" id="widget-18">
+                <span class="mark-badge" data-note="18">18</span>
+                <span class="section-title">预警记录列表</span>
+              </div>
+              <span style="font-size: 12px; color: var(--text-tertiary);">共 <span id="alert-total">2</span> 条</span>
+            </div>
+            <div class="table-wrapper">
+              <div class="table-container">
+                <table class="table" id="alert-table">
+                  <thead>
+                    <tr>
+                      <th>预警日期</th>
+                      <th>客户名称</th>
+                      <th>客户号</th>
+                      <th>部门</th>
+                      <th>场景类型</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="pagination" id="alert-pagination"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- 右侧备注面板 (prototype-marker) -->
+    <div class="notes-panel" id="notesPanel">
+      <div class="notes-panel-header">Widget Notes</div>
+      <div class="notes-panel-content" id="notesContent"></div>
+      <div class="notes-panel-footer" id="notesFooter"></div>
+    </div>
+  </div>
+
+  <!-- 面板切换按钮 -->
+  <button class="notes-toggle" id="notesToggle" title="切换备注面板">📋</button>
+
+  <!-- Toast 容器 -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script>
+  // ========================================
+  // PRDMARK 数据 (prototype-marker)
+  // ========================================
+  const widgetNotes = [
+    { id: 1, name: 'atomicSearchName', label: '指标名称搜索', type: 'input', widgetType: '输入框', defaultVal: '(空)', source: 'PRD-3.1.2', desc: '输入指标名称进行模糊查询', details: ['支持模糊匹配', '不区分大小写'], rules: ['最少输入1个字符'] },
+    { id: 2, name: 'atomicScenarioSelect', label: '场景类型筛选', type: 'select', widgetType: '下拉框', defaultVal: '全部', source: 'PRD-3.1.2', desc: '按场景类型筛选指标', details: ['内幕交易', '场外配资', '非法集资', '疑似贪腐'], rules: [] },
+    { id: 3, name: 'atomicSubcategorySelect', label: '子类筛选', type: 'select', widgetType: '下拉框', defaultVal: '全部', source: 'PRD-3.1.2', desc: '按指标子类筛选', details: ['客户特定身份', '交易行为', '盯市'], rules: [] },
+    { id: 4, name: 'atomicQueryBtn', label: '查询按钮', type: 'button', widgetType: '按钮', source: 'PRD-3.1.2', desc: '执行查询，刷新列表', details: ['收集查询条件', '发送查询请求'], rules: ['响应时间<2秒'] },
+    { id: 5, name: 'atomicResetBtn', label: '重置按钮', type: 'button', widgetType: '按钮', source: 'PRD-3.1.2', desc: '清空查询条件恢复默认值', details: ['清空输入框', '恢复下拉框默认值'], rules: [] },
+    { id: 6, name: 'atomicTable', label: '原子指标列表', type: 'table', widgetType: '表格', source: 'PRD-3.1.3', desc: '展示原子指标数据，支持分页', details: ['默认每页10条', '支持排序'], rules: ['支持横向滚动'] },
+    { id: 7, name: 'compositeSearchName', label: '复合指标名称搜索', type: 'input', widgetType: '输入框', defaultVal: '(空)', source: 'PRD-3.2.2', desc: '输入复合指标名称进行模糊查询', details: [], rules: [] },
+    { id: 8, name: 'compositeScenarioSelect', label: '场景类型筛选', type: 'select', widgetType: '下拉框', defaultVal: '全部', source: 'PRD-3.2.2', desc: '按场景类型筛选复合指标', details: [], rules: [] },
+    { id: 9, name: 'compositeStatusSelect', label: '状态筛选', type: 'select', widgetType: '下拉框', defaultVal: '全部', source: 'PRD-3.2.2', desc: '按生效/失效状态筛选', details: [], rules: [] },
+    { id: 10, name: 'compositeQueryBtn', label: '查询按钮', type: 'button', widgetType: '按钮', source: 'PRD-3.2.2', desc: '执行查询，刷新列表', details: [], rules: ['响应时间<2秒'] },
+    { id: 11, name: 'compositeResetBtn', label: '重置按钮', type: 'button', widgetType: '按钮', source: 'PRD-3.2.2', desc: '清空查询条件恢复默认值', details: [], rules: [] },
+    { id: 12, name: 'compositeTable', label: '复合指标列表', type: 'table', widgetType: '表格', source: 'PRD-3.2.3', desc: '展示复合指标数据，显示逻辑公式', details: ['公式列显示组合规则'], rules: ['公式列支持复制'] },
+    { id: 13, name: 'alertCustomerName', label: '客户名称搜索', type: 'input', widgetType: '输入框', defaultVal: '(空)', source: 'PRD-3.3.2', desc: '输入客户名称进行模糊查询', details: ['支持模糊匹配'], rules: [] },
+    { id: 14, name: 'alertCustomerId', label: '客户号搜索', type: 'input', widgetType: '输入框', defaultVal: '(空)', source: 'PRD-3.3.2', desc: '输入客户号进行精确查询', details: ['精确匹配'], rules: [] },
+    { id: 15, name: 'alertScenarioSelect', label: '场景类型筛选', type: 'select', widgetType: '下拉框', defaultVal: '全部', source: 'PRD-3.3.2', desc: '按场景类型筛选预警', details: [], rules: [] },
+    { id: 16, name: 'alertQueryBtn', label: '查询按钮', type: 'button', widgetType: '按钮', source: 'PRD-3.3.2', desc: '执行查询，刷新列表', details: [], rules: ['响应时间<2秒'] },
+    { id: 17, name: 'alertResetBtn', label: '重置按钮', type: 'button', widgetType: '按钮', source: 'PRD-3.3.2', desc: '清空查询条件恢复默认值', details: [], rules: [] },
+    { id: 18, name: 'alertTable', label: '预警记录列表', type: 'table', widgetType: '表格', source: 'PRD-3.3.3', desc: '展示预警记录，支持展开查看详情', details: ['单击展开详情'], rules: ['高风险预警底色为浅红色'] },
+  ];
+
+  // ========================================
+  // 渲染备注面板 (prototype-marker)
+  // ========================================
+  function renderNotes() {
+    const container = document.getElementById('notesContent');
+    container.innerHTML = widgetNotes.map(note => `
+      <div class="note-card" data-note-id="${note.id}">
+        <div class="note-card-header">
+          <span class="note-card-badge">${note.id}</span>
+          <span class="note-card-label">${note.label}</span>
+          <span class="note-card-type">(${note.widgetType})</span>
+        </div>
+        <div class="note-card-desc">${note.desc}</div>
+        <div class="note-card-meta">说明 | ${note.source} | ${note.name}</div>
+        <div class="note-card-detail">
+          ${note.defaultVal !== undefined ? `
+          <div class="note-detail-section">
+            <h5>默认值</h5>
+            <span class="note-detail-default">${note.defaultVal}</span>
+          </div>` : ''}
+          ${note.details.length ? `
+          <div class="note-detail-section">
+            <h5>详细说明</h5>
+            <ul>${note.details.map(d => `<li>${d}</li>`).join('')}</ul>
+          </div>` : ''}
+          ${note.rules.length ? `
+          <div class="note-detail-section">
+            <h5>业务规则</h5>
+            <ul>${note.rules.map(r => `<li>${r}</li>`).join('')}</ul>
+          </div>` : ''}
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('notesFooter').textContent = 
+      `共 ${widgetNotes.length} 个组件备注 | 来源: PRD v1.0`;
+
+    // 绑定点击事件
+    container.querySelectorAll('.note-card').forEach(card => {
+      card.addEventListener('click', function() {
+        const noteId = this.getAttribute('data-note-id');
+        selectNote(noteId);
+      });
+    });
+  }
+
+  // ========================================
+  // 选中备注（双向联动）(prototype-marker)
+  // ========================================
+  let activeNoteId = null;
+
+  function selectNote(noteId) {
+    if (activeNoteId === noteId) {
+      activeNoteId = null;
+    } else {
+      activeNoteId = noteId;
+    }
+
+    // 更新备注面板高亮
+    document.querySelectorAll('.note-card').forEach(card => {
+      card.classList.toggle('active', 
+        card.getAttribute('data-note-id') === activeNoteId);
+    });
+
+    // 更新原型上的标记高亮
+    document.querySelectorAll('.mark-badge').forEach(badge => {
+      badge.classList.toggle('active', 
+        badge.getAttribute('data-note') === String(activeNoteId));
+    });
+
+    // 更新组件包装器高亮
+    document.querySelectorAll('.component-wrapper').forEach(wrapper => {
+      wrapper.classList.toggle('mark-highlight', 
+        wrapper.id === 'widget-' + activeNoteId);
+    });
+
+    // 滚动到对应组件
+    if (activeNoteId) {
+      const widget = document.getElementById('widget-' + activeNoteId);
+      if (widget) {
+        widget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }
+
+  // 面板切换
+  document.getElementById('notesToggle').addEventListener('click', function() {
+    const panel = document.getElementById('notesPanel');
+    panel.classList.toggle('collapsed');
+    localStorage.setItem('notes-panel-collapsed', panel.classList.contains('collapsed'));
+  });
+
+  // 恢复面板状态
+  if (localStorage.getItem('notes-panel-collapsed') === 'true') {
+    document.getElementById('notesPanel').classList.add('collapsed');
+  }
+
+  // 徽章点击联动
+  document.querySelectorAll('.mark-badge').forEach(badge => {
+    badge.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const noteId = this.getAttribute('data-note');
+      selectNote(noteId);
+      
+      // 确保面板展开
+      const panel = document.getElementById('notesPanel');
+      if (panel.classList.contains('collapsed')) {
+        panel.classList.remove('collapsed');
+      }
+      
+      // 滚动备注面板到对应卡片
+      const noteCard = document.querySelector(`.note-card[data-note-id="${noteId}"]`);
+      if (noteCard) {
+        noteCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  });
+
+  // ========================================
+  // 业务数据
+  // ========================================
+  const atomicIndicators = [
+    { id: '1', name: '客户职业1', scenario: '内幕交易', subCategory: '客户特定身份', description: '客户的职业信息', status: '生效' },
+    { id: '2', name: '客户特定身份异常', scenario: '内幕交易', subCategory: '客户特定身份', description: '客户特定身份异常信息', status: '生效' },
+    { id: '3', name: 'N个交易日内单一证券累计买入成交数量', scenario: '内幕交易', subCategory: '交易行为', description: 'N个交易日内单一证券累计买入成交数量', status: '生效' },
+    { id: '4', name: 'N个交易日内单一证券累计涨幅', scenario: '内幕交易', subCategory: '盯市', description: 'N个交易日内单一证券累计涨幅', status: '生效' },
+    { id: '5', name: 'N个交易日内单一证券累计卖出成交数量', scenario: '内幕交易', subCategory: '出货', description: 'N个交易日内单一证券累计卖出成交数量', status: '生效' },
+    { id: '28', name: 'N个交易日内单一账户单一操作站点只进行卖出交易', scenario: '场外配资', subCategory: '单客户配资', description: 'N个交易日内单一账户单一操作站点只进行卖出交易', status: '生效' },
+    { id: '29', name: 'N个交易日内资金账户密码修改次数', scenario: '场外配资', subCategory: '单客户配资', description: 'N个交易日内资金账户密码修改次数', status: '生效' },
+    { id: '47', name: '客户证券账户数量', scenario: '非法集资', subCategory: '特定客户', description: '客户证券账户数量', status: '生效' },
+    { id: '54', name: 'N个交易日内客户日均资产规模', scenario: '疑似贪腐', subCategory: '特定的职务身份', description: 'N个交易日内客户日均资产规模', status: '生效' },
+    { id: '58', name: '节日前后N个交易日资金账户累计银证存入金额', scenario: '疑似贪腐', subCategory: '节日', description: '节日前后N个交易日资金账户累计银证存入金额', status: '生效' },
+  ];
+
+  const compositeIndicators = [
+    { id: 'C001', name: '内幕交易综合检测', scenario: '内幕交易', description: '综合检测内幕交易行为', formula: 'A001 AND A004 OR A009', status: '生效' },
+    { id: 'C002', name: '场外配资风险监控', scenario: '场外配资', description: '监控疑似场外配资的异常交易行为', formula: 'A028 AND A030 AND A033', status: '生效' },
+    { id: 'C003', name: '嵌套组规则示例', scenario: '非法集资', description: '演示嵌套组规则的使用', formula: '(A047 AND (A048 OR A050))', status: '生效' },
+    { id: 'C004', name: '贪腐风险评估', scenario: '疑似贪腐', description: '评估客户的贪腐风险等级', formula: 'A054 AND A058', status: '失效' },
+  ];
+
+  const alertRecords = [
+    { id: '1', alertDate: '2026-04-23', customerName: '沈藤', customerId: 'AX1990H600111', department: '营业部1', scenario: '内幕交易' },
+    { id: '2', alertDate: '2026-04-22', customerName: '张三', customerId: 'AX1990H600112', department: '营业部2', scenario: '场外配资' },
+  ];
+
+  // ========================================
+  // 状态
+  // ========================================
+  let atomicPage = 1, atomicPageSize = 10;
+  let compositePage = 1, compositePageSize = 10;
+  let alertPage = 1, alertPageSize = 10;
+
+  // ========================================
+  // 页面切换
+  // ========================================
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      item.classList.add('active');
+      const page = item.dataset.page;
+      document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+      document.getElementById(`page-${page}`).classList.add('active');
+    });
+  });
+
+  // ========================================
+  // Toast
+  // ========================================
+  function showToast(message) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  // ========================================
+  // 表格渲染
+  // ========================================
+  function renderAtomicTable() {
+    const searchName = document.getElementById('atomic-search-name').value.toLowerCase();
+    const searchScenario = document.getElementById('atomic-search-scenario').value;
+    const searchSubCategory = document.getElementById('atomic-search-subcategory').value;
+
+    let filtered = atomicIndicators.filter(item => {
+      return (!searchName || item.name.toLowerCase().includes(searchName)) &&
+             (searchScenario === 'all' || item.scenario === searchScenario) &&
+             (searchSubCategory === 'all' || item.subCategory === searchSubCategory);
+    });
+
+    document.getElementById('atomic-total').textContent = filtered.length;
+    const start = (atomicPage - 1) * atomicPageSize;
+    const pageData = filtered.slice(start, start + atomicPageSize);
+
+    const tbody = document.querySelector('#atomic-table tbody');
+    tbody.innerHTML = pageData.map(item => `
+      <tr>
+        <td>${item.id}</td>
+        <td>${item.name}</td>
+        <td><span class="tag tag-brand">${item.scenario}</span></td>
+        <td>${item.subCategory}</td>
+        <td>${item.description}</td>
+        <td><span class="tag ${item.status === '生效' ? 'tag-success' : 'tag-error'}">${item.status}</span></td>
+        <td><a style="color: var(--brand-500); cursor: pointer;" onclick="editAtomic('${item.id}')">编辑</a></td>
+      </tr>
+    `).join('');
+
+    renderPagination('atomic-pagination', filtered.length, atomicPage, atomicPageSize, (page) => {
+      atomicPage = page;
+      renderAtomicTable();
+    });
+  }
+
+  function renderCompositeTable() {
+    const searchName = document.getElementById('composite-search-name').value.toLowerCase();
+    const searchScenario = document.getElementById('composite-search-scenario').value;
+    const searchStatus = document.getElementById('composite-search-status').value;
+
+    let filtered = compositeIndicators.filter(item => {
+      return (!searchName || item.name.toLowerCase().includes(searchName)) &&
+             (searchScenario === 'all' || item.scenario === searchScenario) &&
+             (searchStatus === 'all' || item.status === searchStatus);
+    });
+
+    document.getElementById('composite-total').textContent = filtered.length;
+    const start = (compositePage - 1) * compositePageSize;
+    const pageData = filtered.slice(start, start + compositePageSize);
+
+    const tbody = document.querySelector('#composite-table tbody');
+    tbody.innerHTML = pageData.map(item => `
+      <tr>
+        <td>${item.id}</td>
+        <td>${item.name}</td>
+        <td><span class="tag tag-brand">${item.scenario}</span></td>
+        <td><code style="background: var(--bg-hover); padding: 2px 6px; border-radius: 4px; font-size: 12px;">${item.formula}</code></td>
+        <td><span class="tag ${item.status === '生效' ? 'tag-success' : 'tag-error'}">${item.status}</span></td>
+        <td><a style="color: var(--brand-500); cursor: pointer;" onclick="editComposite('${item.id}')">编辑</a></td>
+      </tr>
+    `).join('');
+
+    renderPagination('composite-pagination', filtered.length, compositePage, compositePageSize, (page) => {
+      compositePage = page;
+      renderCompositeTable();
+    });
+  }
+
+  function renderAlertTable() {
+    const searchCustomer = document.getElementById('alert-search-customer').value.toLowerCase();
+    const searchCustomerId = document.getElementById('alert-search-customerid').value.toLowerCase();
+    const searchScenario = document.getElementById('alert-search-scenario').value;
+
+    let filtered = alertRecords.filter(item => {
+      return (!searchCustomer || item.customerName.toLowerCase().includes(searchCustomer)) &&
+             (!searchCustomerId || item.customerId.toLowerCase().includes(searchCustomerId)) &&
+             (searchScenario === 'all' || item.scenario === searchScenario);
+    });
+
+    document.getElementById('alert-total').textContent = filtered.length;
+    const start = (alertPage - 1) * alertPageSize;
+    const pageData = filtered.slice(start, start + alertPageSize);
+
+    const tbody = document.querySelector('#alert-table tbody');
+    tbody.innerHTML = pageData.map(item => `
+      <tr>
+        <td>${item.alertDate}</td>
+        <td><strong>${item.customerName}</strong></td>
+        <td>${item.customerId}</td>
+        <td>${item.department}</td>
+        <td><span class="tag tag-brand">${item.scenario}</span></td>
+        <td><a style="color: var(--brand-500); cursor: pointer;">查看详情</a></td>
+      </tr>
+    `).join('');
+
+    renderPagination('alert-pagination', filtered.length, alertPage, alertPageSize, (page) => {
+      alertPage = page;
+      renderAlertTable();
+    });
+  }
+
+  function renderPagination(containerId, total, current, pageSize, onChange) {
+    const totalPages = Math.ceil(total / pageSize) || 1;
+    const container = document.getElementById(containerId);
+    let html = `<span style="font-size: 12px; color: var(--text-tertiary); margin-right: 8px;">共 ${total} 条</span>`;
+    
+    html += `<button class="page-btn" ${current === 1 ? 'disabled' : ''} onclick="${onChange.name}(${current - 1})">‹</button>`;
+    
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= current - 2 && i <= current + 2)) {
+        html += `<button class="page-btn ${i === current ? 'active' : ''}" onclick="${onChange.name}(${i})">${i}</button>`;
+      } else if (i === current - 3 || i === current + 3) {
+        html += `<span style="padding: 0 4px;">...</span>`;
+      }
+    }
+    
+    html += `<button class="page-btn" ${current === totalPages ? 'disabled' : ''} onclick="${onChange.name}(${current + 1})">›</button>`;
+    
+    container.innerHTML = html;
+  }
+
+  // ========================================
+  // 查询操作
+  // ========================================
+  function queryAtomic() { atomicPage = 1; renderAtomicTable(); showToast('查询完成'); }
+  function resetAtomic() {
+    document.getElementById('atomic-search-name').value = '';
+    document.getElementById('atomic-search-scenario').value = 'all';
+    document.getElementById('atomic-search-subcategory').value = 'all';
+    atomicPage = 1; renderAtomicTable(); showToast('已重置');
+  }
+  function queryComposite() { compositePage = 1; renderCompositeTable(); showToast('查询完成'); }
+  function resetComposite() {
+    document.getElementById('composite-search-name').value = '';
+    document.getElementById('composite-search-scenario').value = 'all';
+    document.getElementById('composite-search-status').value = 'all';
+    compositePage = 1; renderCompositeTable(); showToast('已重置');
+  }
+  function queryAlert() { alertPage = 1; renderAlertTable(); showToast('查询完成'); }
+  function resetAlert() {
+    document.getElementById('alert-search-customer').value = '';
+    document.getElementById('alert-search-customerid').value = '';
+    document.getElementById('alert-search-scenario').value = 'all';
+    alertPage = 1; renderAlertTable(); showToast('已重置');
+  }
+
+  // ========================================
+  // 弹窗操作
+  // ========================================
+  function openAtomicModal() {
+    document.getElementById('atomic-modal-title').textContent = '新增原子指标';
+    document.getElementById('atomic-modal').classList.add('active');
+  }
+  function closeAtomicModal() { document.getElementById('atomic-modal').classList.remove('active'); }
+  function editAtomic(id) { showToast('编辑: ' + id); }
+  function openCompositeModal() {
+    document.getElementById('composite-modal-title').textContent = '新增复合指标';
+    document.getElementById('composite-modal').classList.add('active');
+  }
+  function closeCompositeModal() { document.getElementById('composite-modal').classList.remove('active'); }
+  function editComposite(id) { showToast('编辑: ' + id); }
+
+  // ========================================
+  // 初始化
+  // ========================================
+  document.addEventListener('DOMContentLoaded', () => {
+    renderNotes();
+    renderAtomicTable();
+    renderCompositeTable();
+    renderAlertTable();
+  });
+  </script>
+</body>
+</html>
