@@ -1033,7 +1033,7 @@
                                     <div class="todo-info-title">杭州XX网络科技公司</div>
                                     <div class="todo-info-desc">提交时间：2小时前</div>
                                 </div>
-                                <div class="todo-action" onclick="showReviewModal('merchant')">立即处理</div>
+                                <div class="todo-action" onclick="window.location.href='merchant-review.html'">立即处理</div>
                             </div>
                             <div class="todo-item">
                                 <div class="todo-icon pending">
@@ -1043,7 +1043,7 @@
                                     <div class="todo-info-title">北京XX餐饮管理公司</div>
                                     <div class="todo-info-desc">提交时间：5小时前</div>
                                 </div>
-                                <div class="todo-action" onclick="showReviewModal('merchant')">立即处理</div>
+                                <div class="todo-action" onclick="window.location.href='merchant-review.html'">立即处理</div>
                             </div>
                             <div class="todo-item">
                                 <div class="todo-icon pending">
@@ -1053,7 +1053,7 @@
                                     <div class="todo-info-title">上海XX贸易有限公司</div>
                                     <div class="todo-info-desc">提交时间：1天前</div>
                                 </div>
-                                <div class="todo-action" onclick="showReviewModal('merchant')">立即处理</div>
+                                <div class="todo-action" onclick="window.location.href='merchant-review.html'">立即处理</div>
                             </div>
                         </div>
                     </div>
@@ -1076,7 +1076,7 @@
                                     <div class="todo-info-title">用户：张三 - ¥50,000.00</div>
                                     <div class="todo-info-desc">申请时间：30分钟前</div>
                                 </div>
-                                <div class="todo-action" onclick="showReviewModal('withdraw')">立即处理</div>
+                                <div class="todo-action" onclick="window.location.href='withdraw-review.html'">立即处理</div>
                             </div>
                             <div class="todo-item">
                                 <div class="todo-icon pending">
@@ -1086,7 +1086,7 @@
                                     <div class="todo-info-title">用户：李四 - ¥8,888.00</div>
                                     <div class="todo-info-desc">申请时间：2小时前</div>
                                 </div>
-                                <div class="todo-action" onclick="showReviewModal('withdraw')">立即处理</div>
+                                <div class="todo-action" onclick="window.location.href='withdraw-review.html'">立即处理</div>
                             </div>
                             <div class="todo-item">
                                 <div class="todo-icon pending">
@@ -1096,7 +1096,7 @@
                                     <div class="todo-info-title">商户：星巴克XX店 - ¥12,500.00</div>
                                     <div class="todo-info-desc">申请时间：3小时前</div>
                                 </div>
-                                <div class="todo-action" onclick="showReviewModal('withdraw')">立即处理</div>
+                                <div class="todo-action" onclick="window.location.href='withdraw-review.html'">立即处理</div>
                             </div>
                         </div>
                     </div>
@@ -1215,13 +1215,13 @@
                 <div class="quick-section">
                     <div class="quick-header">快捷操作</div>
                     <div class="quick-grid">
-                        <div class="quick-item" onclick="showPage('merchantReview')">
+                        <div class="quick-item" onclick="window.location.href='merchant-review.html'">
                             <div class="quick-icon blue">
                                 <i class="fas fa-user-check"></i>
                             </div>
                             <div class="quick-label">商户审核</div>
                         </div>
-                        <div class="quick-item" onclick="showPage('withdraw')">
+                        <div class="quick-item" onclick="window.location.href='withdraw-review.html'">
                             <div class="quick-icon orange">
                                 <i class="fas fa-arrow-up"></i>
                             </div>
@@ -1341,7 +1341,13 @@
         }
 
         function showPage(page) {
-            showToast('跳转到：' + page);
+            if (page === 'merchantReview') {
+                window.location.href = 'merchant-review.html';
+            } else if (page === 'withdraw') {
+                window.location.href = 'withdraw-review.html';
+            } else {
+                showToast('跳转到：' + page);
+            }
         }
 
         function showNotifications() {

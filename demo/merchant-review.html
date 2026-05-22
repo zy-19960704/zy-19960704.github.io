@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>运营管理 - 商户入驻审核</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1890ff;
+            --primary-hover: #40a9ff;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --danger-color: #ff4d4f;
+            --text-primary: #262626;
+            --text-secondary: #8c8c8c;
+            --text-tertiary: #bfbfbf;
+            --border-color: #e8e8e8;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .app {
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 220px;
+            background: linear-gradient(180deg, #001529 0%, #000c17 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-logo {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-logo i {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 0;
+            overflow-y: auto;
+        }
+
+        .nav-group-title {
+            padding: 8px 20px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.45);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.65);
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item.active {
+            color: white;
+            background: rgba(24, 144, 255, 0.15);
+            border-left-color: var(--primary-color);
+        }
+
+        .nav-item i {
+            width: 18px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .nav-badge {
+            position: absolute;
+            right: 16px;
+            background: var(--danger-color);
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        /* 主内容区 */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: white;
+            padding: 0 24px;
+            height: 60px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .page-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .main {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* 搜索区域 */
+        .search-bar {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .search-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 120px;
+        }
+
+        /* 表格 */
+        .table-wrapper {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--bg-color);
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: var(--bg-color);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .status-badge.pending {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+
+        .status-badge.approved {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .status-badge.rejected {
+            background: #fff1f0;
+            color: #ff4d4f;
+        }
+
+        .action-btn {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            margin-right: 8px;
+        }
+
+        .action-btn.approve {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .action-btn.approve:hover {
+            background: #389e0d;
+        }
+
+        .action-btn.reject {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .action-btn.reject:hover {
+            background: #cf1322;
+        }
+
+        .action-btn.detail {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .action-btn.detail:hover {
+            background: var(--primary-hover);
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 20px;
+        }
+
+        .page-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .page-btn:hover:not(.active):not(:disabled) {
+            border-color: var(--primary-color);
+        }
+
+        .page-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 详情弹窗 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 24px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .detail-section {
+            margin-bottom: 24px;
+        }
+
+        .detail-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            font-weight: 500;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .review-actions {
+            display: flex;
+            gap: 12px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .reject-reason {
+            margin-bottom: 16px;
+        }
+
+        .reject-reason textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .reject-reason textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Toast提示 -->
+        <div class="toast" id="toast"></div>
+
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>支付系统</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-group-title">首页</div>
+                <div class="nav-item" onclick="goDashboard()">
+                    <i class="fas fa-home"></i>
+                    <span>工作台</span>
+                </div>
+
+                <div class="nav-group-title">商户管理</div>
+                <div class="nav-item" onclick="showPage('merchant')">
+                    <i class="fas fa-store"></i>
+                    <span>商户列表</span>
+                </div>
+                <div class="nav-item active">
+                    <i class="fas fa-user-check"></i>
+                    <span>入驻审核</span>
+                    <span class="nav-badge">3</span>
+                </div>
+
+                <div class="nav-group-title">资金管理</div>
+                <div class="nav-item" onclick="showPage('withdraw')">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>提现审核</span>
+                </div>
+                <div class="nav-item" onclick="showPage('transactions')">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>交易流水</span>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 主内容区 -->
+        <div class="main-wrapper">
+            <header class="header">
+                <div class="header-left">
+                    <h1 class="page-title">商户入驻审核</h1>
+                </div>
+                <div class="header-right">
+                    <button class="btn btn-secondary" onclick="exportData()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="btn btn-primary" onclick="refreshList()">
+                        <i class="fas fa-refresh"></i> 刷新
+                    </button>
+                </div>
+            </header>
+
+            <main class="main">
+                <!-- 搜索区域 -->
+                <div class="search-bar">
+                    <div class="search-group">
+                        <span class="search-label">商户名称：</span>
+                        <input type="text" class="search-input" placeholder="请输入商户名称" id="searchName">
+                    </div>
+                    <div class="search-group">
+                        <span class="search-label">信用代码：</span>
+                        <input type="text" class="search-input" placeholder="请输入信用代码" id="searchCode">
+                    </div>
+                    <div class="search-group">
+                        <span class="search-label">审核状态：</span>
+                        <select class="search-select" id="searchStatus">
+                            <option value="">全部</option>
+                            <option value="pending">待审核</option>
+                            <option value="approved">已通过</option>
+                            <option value="rejected">已拒绝</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="search()">
+                        <i class="fas fa-search"></i> 查询
+                    </button>
+                </div>
+
+                <!-- 表格 -->
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>申请编号</th>
+                                <th>商户名称</th>
+                                <th>统一信用代码</th>
+                                <th>法人代表</th>
+                                <th>所属行业</th>
+                                <th>申请时间</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>MER202605220001</td>
+                                <td>杭州XX网络科技有限公司</td>
+                                <td>91330000XXXXXXXX</td>
+                                <td>王XX</td>
+                                <td>互联网</td>
+                                <td>2026-05-22 12:30:00</td>
+                                <td><span class="status-badge pending">待审核</span></td>
+                                <td>
+                                    <button class="action-btn detail" onclick="showDetail('MER202605220001')">详情</button>
+                                    <button class="action-btn approve" onclick="approve('MER202605220001', this)">通过</button>
+                                    <button class="action-btn reject" onclick="showRejectModal('MER202605220001')">拒绝</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>MER202605220002</td>
+                                <td>北京XX餐饮管理有限公司</td>
+                                <td>91110000XXXXXXXX</td>
+                                <td>李XX</td>
+                                <td>餐饮</td>
+                                <td>2026-05-22 09:15:00</td>
+                                <td><span class="status-badge pending">待审核</span></td>
+                                <td>
+                                    <button class="action-btn detail" onclick="showDetail('MER202605220002')">详情</button>
+                                    <button class="action-btn approve" onclick="approve('MER202605220002', this)">通过</button>
+                                    <button class="action-btn reject" onclick="showRejectModal('MER202605220002')">拒绝</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>MER202605210003</td>
+                                <td>上海XX贸易有限公司</td>
+                                <td>91310000XXXXXXXX</td>
+                                <td>张XX</td>
+                                <td>贸易</td>
+                                <td>2026-05-21 16:45:00</td>
+                                <td><span class="status-badge pending">待审核</span></td>
+                                <td>
+                                    <button class="action-btn detail" onclick="showDetail('MER202605210003')">详情</button>
+                                    <button class="action-btn approve" onclick="approve('MER202605210003', this)">通过</button>
+                                    <button class="action-btn reject" onclick="showRejectModal('MER202605210003')">拒绝</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>MER202605200004</td>
+                                <td>广州XX服装有限公司</td>
+                                <td>91440000XXXXXXXX</td>
+                                <td>陈XX</td>
+                                <td>服装</td>
+                                <td>2026-05-20 14:20:00</td>
+                                <td><span class="status-badge approved">已通过</span></td>
+                                <td>
+                                    <button class="action-btn detail" onclick="showDetail('MER202605200004')">详情</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>MER202605190005</td>
+                                <td>深圳XX电子科技有限公司</td>
+                                <td>91440300XXXXXXXX</td>
+                                <td>刘XX</td>
+                                <td>电子</td>
+                                <td>2026-05-19 10:00:00</td>
+                                <td><span class="status-badge rejected">已拒绝</span></td>
+                                <td>
+                                    <button class="action-btn detail" onclick="showDetail('MER202605190005')">详情</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分页 -->
+                <div class="pagination">
+                    <button class="page-btn" disabled>
+                        <i class="fas fa-angle-left"></i>
+                    </button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <button class="page-btn">4</button>
+                    <button class="page-btn">5</button>
+                    <button class="page-btn">
+                        <i class="fas fa-angle-right"></i>
+                    </button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">商户入驻详情</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-section">
+                    <div class="detail-section-title">申请信息</div>
+                    <div class="detail-row">
+                        <span class="detail-label">申请编号</span>
+                        <span class="detail-value">MER202605220001</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">申请时间</span>
+                        <span class="detail-value">2026-05-22 12:30:00</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">审核状态</span>
+                        <span class="detail-value"><span class="status-badge pending">待审核</span></span>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">企业信息</div>
+                    <div class="detail-row">
+                        <span class="detail-label">企业名称</span>
+                        <span class="detail-value">杭州XX网络科技有限公司</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">统一社会信用代码</span>
+                        <span class="detail-value">91330000XXXXXXXX</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">企业类型</span>
+                        <span class="detail-value">有限责任公司</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">注册资本</span>
+                        <span class="detail-value">100万元</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">所属行业</span>
+                        <span class="detail-value">互联网</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">经营地址</span>
+                        <span class="detail-value">浙江省杭州市西湖区XX路XX号</span>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">法人信息</div>
+                    <div class="detail-row">
+                        <span class="detail-label">法人姓名</span>
+                        <span class="detail-value">王XX</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">身份证号</span>
+                        <span class="detail-value">330XXXXXXXXXXXXXXX</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">手机号码</span>
+                        <span class="detail-value">138****8888</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">电子邮箱</span>
+                        <span class="detail-value">wangxx@xxcompany.com</span>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">结算信息</div>
+                    <div class="detail-row">
+                        <span class="detail-label">对公账户名称</span>
+                        <span class="detail-value">杭州XX网络科技有限公司</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">对公账号</span>
+                        <span class="detail-value">622XXXXXXXXXXXXXXXXX</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">开户银行</span>
+                        <span class="detail-value">中国工商银行杭州XX支行</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">结算周期</span>
+                        <span class="detail-value">T+1结算</span>
+                    </div>
+                </div>
+
+                <div class="review-actions">
+                    <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                    <button class="btn btn-primary" onclick="approveFromModal()">审核通过</button>
+                    <button class="btn btn-reject" onclick="showRejectModalFromDetail()" style="background: var(--danger-color); color: white;">拒绝申请</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 拒绝弹窗 -->
+    <div class="modal" id="rejectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">拒绝申请</h3>
+                <button class="modal-close" onclick="closeRejectModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="reject-reason">
+                    <label style="font-size: 14px; font-weight: 500; margin-bottom: 8px; display: block;">拒绝原因</label>
+                    <textarea placeholder="请输入拒绝原因，将通知商户"></textarea>
+                </div>
+                <div class="review-actions">
+                    <button class="btn btn-secondary" onclick="closeRejectModal()">取消</button>
+                    <button class="btn btn-reject" onclick="confirmReject()" style="background: var(--danger-color); color: white;">确认拒绝</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function goDashboard() {
+            window.location.href = 'admin-dashboard.html';
+        }
+
+        function showPage(page) {
+            showToast('跳转到：' + page);
+        }
+
+        function exportData() {
+            showToast('导出成功');
+        }
+
+        function refreshList() {
+            showToast('已刷新');
+        }
+
+        function search() {
+            showToast('查询成功');
+        }
+
+        function showDetail(merchantNo) {
+            document.getElementById('detailModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('show');
+        }
+
+        function approve(merchantNo, btn) {
+            const row = btn.closest('tr');
+            const statusBadge = row.querySelector('.status-badge');
+            statusBadge.className = 'status-badge approved';
+            statusBadge.textContent = '已通过';
+            row.querySelectorAll('.action-btn').forEach(b => b.style.display = 'none');
+            showToast('审核通过');
+        }
+
+        function approveFromModal() {
+            closeModal();
+            showToast('审核通过');
+        }
+
+        function showRejectModal(merchantNo) {
+            document.getElementById('rejectModal').classList.add('show');
+        }
+
+        function showRejectModalFromDetail() {
+            closeModal();
+            document.getElementById('rejectModal').classList.add('show');
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').classList.remove('show');
+        }
+
+        function confirmReject() {
+            closeRejectModal();
+            showToast('已拒绝');
+        }
+
+        document.getElementById('detailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        document.getElementById('rejectModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeRejectModal();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账户系统 - 交易记录</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1890ff;
+            --primary-hover: #40a9ff;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --danger-color: #ff4d4f;
+            --text-primary: #262626;
+            --text-secondary: #8c8c8c;
+            --text-tertiary: #bfbfbf;
+            --border-color: #e8e8e8;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 头部导航 */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #0050b3 100%);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .header-back {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .header-back:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 主内容区 */
+        .main {
+            flex: 1;
+            padding: 20px;
+            max-width: 480px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* 筛选栏 */
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .filter-item {
+            padding: 8px 16px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            font-size: 14px;
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .filter-item.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .filter-item:hover:not(.active) {
+            border-color: var(--primary-color);
+        }
+
+        /* 时间分组 */
+        .time-group {
+            margin-bottom: 20px;
+        }
+
+        .time-header {
+            padding: 12px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* 交易列表 */
+        .trans-list {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .trans-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .trans-item:last-child {
+            border-bottom: none;
+        }
+
+        .trans-item:hover {
+            background: var(--bg-color);
+        }
+
+        .trans-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .trans-icon.income {
+            background: #f6ffed;
+            color: var(--success-color);
+        }
+
+        .trans-icon.expense {
+            background: #fff1f0;
+            color: var(--danger-color);
+        }
+
+        .trans-icon.transfer {
+            background: #e6f7ff;
+            color: var(--primary-color);
+        }
+
+        .trans-icon.recharge {
+            background: #f6ffed;
+            color: var(--success-color);
+        }
+
+        .trans-icon.withdraw {
+            background: #fff7e6;
+            color: var(--warning-color);
+        }
+
+        .trans-info {
+            flex: 1;
+        }
+
+        .trans-type {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .trans-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .trans-amount {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .trans-amount.income {
+            color: var(--success-color);
+        }
+
+        .trans-amount.expense {
+            color: var(--danger-color);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 16px;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            position: sticky;
+            bottom: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 16px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-item i {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item span {
+            font-size: 12px;
+        }
+
+        /* 详情弹窗 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 480px;
+            border-radius: 16px 16px 0 0;
+            max-height: 70vh;
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .detail-section {
+            margin-bottom: 24px;
+        }
+
+        .detail-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .detail-amount {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            padding: 20px 0;
+            border-radius: 12px;
+            background: var(--bg-color);
+            margin-bottom: 24px;
+        }
+
+        .detail-amount.income {
+            color: var(--success-color);
+        }
+
+        .detail-amount.expense {
+            color: var(--danger-color);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+        }
+
+        .detail-data {
+            font-weight: 500;
+        }
+
+        .detail-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .detail-btn:hover {
+            background: var(--primary-hover);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- 头部 -->
+        <header class="header">
+            <div class="header-back" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+            </div>
+            <div class="header-title">交易记录</div>
+            <div style="width: 36px;"></div>
+        </header>
+
+        <!-- 主内容区 -->
+        <main class="main">
+            <!-- 筛选栏 -->
+            <div class="filter-bar">
+                <div class="filter-item active" onclick="filterTransactions('all')">全部</div>
+                <div class="filter-item" onclick="filterTransactions('income')">收入</div>
+                <div class="filter-item" onclick="filterTransactions('expense')">支出</div>
+                <div class="filter-item" onclick="filterTransactions('transfer')">转账</div>
+            </div>
+
+            <!-- 交易列表 -->
+            <div class="time-group">
+                <div class="time-header">今天</div>
+                <div class="trans-list">
+                    <div class="trans-item" onclick="showDetail(this)">
+                        <div class="trans-icon income">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="trans-info">
+                            <div class="trans-type">充值</div>
+                            <div class="trans-time">10:30:25</div>
+                        </div>
+                        <div class="trans-amount income">+1,000.00</div>
+                    </div>
+                    <div class="trans-item" onclick="showDetail(this)">
+                        <div class="trans-icon expense">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                        <div class="trans-info">
+                            <div class="trans-type">支付-星巴克咖啡</div>
+                            <div class="trans-time">09:15:42</div>
+                        </div>
+                        <div class="trans-amount expense">-38.50</div>
+                    </div>
+                    <div class="trans-item" onclick="showDetail(this)">
+                        <div class="trans-icon income">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="trans-info">
+                            <div class="trans-type">收款-李四</div>
+                            <div class="trans-time">08:50:10</div>
+                        </div>
+                        <div class="trans-amount income">+200.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="time-group">
+                <div class="time-header">5月21日</div>
+                <div class="trans-list">
+                    <div class="trans-item" onclick="showDetail(this)">
+                        <div class="trans-icon expense">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                        <div class="trans-info">
+                            <div class="trans-type">支付-滴滴出行</div>
+                            <div class="trans-time">22:15:30</div>
+                        </div>
+                        <div class="trans-amount expense">-25.80</div>
+                    </div>
+                    <div class="trans-item" onclick="showDetail(this)">
+                        <div class="trans-icon withdraw">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="trans-info">
+                            <div class="trans-type">提现</div>
+                            <div class="trans-time">15:30:00</div>
+                        </div>
+                        <div class="trans-amount expense">-2,000.00</div>
+                    </div>
+                    <div class="trans-item" onclick="showDetail(this)">
+                        <div class="trans-icon transfer">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div class="trans-info">
+                            <div class="trans-type">转账-张三</div>
+                            <div class="trans-time">10:20:15</div>
+                        </div>
+                        <div class="trans-amount expense">-500.00</div>
+                    </div>
+                    <div class="trans-item" onclick="showDetail(this)">
+                        <div class="trans-icon recharge">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div class="trans-info">
+                            <div class="trans-type">充值</div>
+                            <div class="trans-time">09:00:00</div>
+                        </div>
+                        <div class="trans-amount income">+5,000.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="time-group">
+                <div class="time-header">5月20日</div>
+                <div class="trans-list">
+                    <div class="trans-item" onclick="showDetail(this)">
+                        <div class="trans-icon expense">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                        <div class="trans-info">
+                            <div class="trans-type">支付-美团外卖</div>
+                            <div class="trans-time">19:45:20</div>
+                        </div>
+                        <div class="trans-amount expense">-45.00</div>
+                    </div>
+                    <div class="trans-item" onclick="showDetail(this)">
+                        <div class="trans-icon income">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="trans-info">
+                            <div class="trans-type">收款-王五</div>
+                            <div class="trans-time">14:30:00</div>
+                        </div>
+                        <div class="trans-amount income">+800.00</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 底部导航 -->
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="goHome()">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+            </div>
+            <div class="nav-item active">
+                <i class="fas fa-list"></i>
+                <span>记录</span>
+            </div>
+            <div class="nav-item" onclick="goCollect()">
+                <i class="fas fa-qrcode"></i>
+                <span>收款</span>
+            </div>
+            <div class="nav-item" onclick="goMine()">
+                <i class="fas fa-user"></i>
+                <span>我的</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>交易详情</span>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-amount" id="detailAmount">¥0.00</div>
+                <div class="detail-section">
+                    <div class="detail-title">交易类型</div>
+                    <div class="detail-value" id="detailType">充值</div>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">交易时间</span>
+                    <span class="detail-data" id="detailTime">2026-05-22 10:30:25</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">交易单号</span>
+                    <span class="detail-data" id="detailNo">TR20260522103025001</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">对方账户</span>
+                    <span class="detail-data" id="detailCounterparty">中国工商银行</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">交易状态</span>
+                    <span class="detail-data" style="color: var(--success-color);" id="detailStatus">交易成功</span>
+                </div>
+                <button class="detail-btn" onclick="showToast('复制成功')">复制交易单号</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = 'user-home.html';
+        }
+
+        function goHome() {
+            window.location.href = 'user-home.html';
+        }
+
+        function goCollect() {
+            window.location.href = 'user-home.html';
+        }
+
+        function goMine() {
+            window.location.href = 'user-home.html';
+        }
+
+        function filterTransactions(type) {
+            document.querySelectorAll('.filter-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            showToast('筛选：' + event.target.textContent);
+        }
+
+        function showDetail(item) {
+            const type = item.querySelector('.trans-type').textContent;
+            const amount = item.querySelector('.trans-amount').textContent;
+            const time = item.querySelector('.trans-time').textContent;
+            
+            document.getElementById('detailType').textContent = type;
+            document.getElementById('detailAmount').textContent = '¥' + Math.abs(parseFloat(amount.replace(/[^0-9.]/g, ''))).toFixed(2);
+            document.getElementById('detailAmount').className = 'detail-amount ' + (amount.startsWith('+') ? 'income' : 'expense');
+            document.getElementById('detailTime').textContent = '2026-05-22 ' + time;
+            document.getElementById('detailNo').textContent = 'TR' + new Date().getTime().toString().slice(-15);
+            
+            if (type.includes('充值')) {
+                document.getElementById('detailCounterparty').textContent = '中国工商银行';
+            } else if (type.includes('支付')) {
+                document.getElementById('detailCounterparty').textContent = type.replace('支付-', '');
+            } else if (type.includes('收款')) {
+                document.getElementById('detailCounterparty').textContent = type.replace('收款-', '');
+            } else if (type.includes('转账')) {
+                document.getElementById('detailCounterparty').textContent = type.replace('转账-', '');
+            } else {
+                document.getElementById('detailCounterparty').textContent = '系统';
+            }
+            
+            document.getElementById('detailModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('show');
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 14px;
+                z-index: 1001;
+                animation: fadeIn 0.3s;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 2000);
+        }
+
+        document.getElementById('detailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
