@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>运营工作台</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1890ff;
+            --primary-hover: #40a9ff;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --danger-color: #ff4d4f;
+            --text-primary: #262626;
+            --text-secondary: #8c8c8c;
+            --text-tertiary: #bfbfbf;
+            --border-color: #e8e8e8;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .app {
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 220px;
+            background: linear-gradient(180deg, #001529 0%, #000c17 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-logo {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-logo i {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        .sidebar-subtitle {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.65);
+            margin-top: 4px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 0;
+            overflow-y: auto;
+        }
+
+        .nav-group {
+            margin-bottom: 8px;
+        }
+
+        .nav-group-title {
+            padding: 8px 20px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.45);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.65);
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item.active {
+            color: white;
+            background: rgba(24, 144, 255, 0.15);
+            border-left-color: var(--primary-color);
+        }
+
+        .nav-item i {
+            width: 18px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .nav-badge {
+            position: absolute;
+            right: 16px;
+            background: var(--danger-color);
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .admin-detail {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .admin-name {
+            font-weight: 500;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .admin-role {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        /* 主内容区 */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        .header {
+            background: white;
+            padding: 0 24px;
+            height: 60px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .page-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-time {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .header-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .header-icon:hover {
+            background: var(--border-color);
+        }
+
+        .header-icon .badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--danger-color);
+            color: white;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        /* 欢迎卡片 */
+        .welcome-card {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #0050b3 100%);
+            border-radius: 12px;
+            padding: 24px;
+            color: white;
+            margin-bottom: 24px;
+        }
+
+        .welcome-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .welcome-text h2 {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .welcome-text p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .welcome-stats {
+            display: flex;
+            gap: 32px;
+        }
+
+        .welcome-stat {
+            text-align: center;
+        }
+
+        .welcome-stat-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .welcome-stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* 数据卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .stat-icon.blue { background: #e6f7ff; color: var(--primary-color); }
+        .stat-icon.green { background: #f6ffed; color: var(--success-color); }
+        .stat-icon.orange { background: #fff7e6; color: var(--warning-color); }
+        .stat-icon.red { background: #fff1f0; color: var(--danger-color); }
+
+        .stat-trend {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-trend.up { color: var(--success-color); }
+        .stat-trend.down { color: var(--danger-color); }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* 待办任务 */
+        .todo-section {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .todo-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .todo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .todo-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .todo-title i {
+            color: var(--primary-color);
+        }
+
+        .todo-more {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .todo-more:hover {
+            color: var(--primary-color);
+        }
+
+        .todo-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .todo-item:hover {
+            background: #e6f7ff;
+        }
+
+        .todo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .todo-icon.pending {
+            background: #fff7e6;
+            color: var(--warning-color);
+        }
+
+        .todo-icon.urgent {
+            background: #fff1f0;
+            color: var(--danger-color);
+        }
+
+        .todo-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .todo-info-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .todo-info-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .todo-action {
+            padding: 6px 12px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+            flex-shrink: 0;
+        }
+
+        .todo-action:hover {
+            background: var(--primary-hover);
+        }
+
+        .todo-empty {
+            text-align: center;
+            padding: 32px 0;
+            color: var(--text-tertiary);
+        }
+
+        .todo-empty i {
+            font-size: 32px;
+            margin-bottom: 8px;
+            opacity: 0.5;
+        }
+
+        /* 图表区域 */
+        .chart-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .chart-tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chart-tab {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+        }
+
+        .chart-tab:hover {
+            color: var(--primary-color);
+        }
+
+        .chart-tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-tertiary);
+        }
+
+        .chart-placeholder i {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        /* 排行榜 */
+        .rank-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .rank-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+        }
+
+        .rank-no {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            background: var(--bg-color);
+            color: var(--text-secondary);
+        }
+
+        .rank-no.top1 { background: #fff7e6; color: #fa8c16; }
+        .rank-no.top2 { background: #f5f5f5; color: #8c8c8c; }
+        .rank-no.top3 { background: #fff1e6; color: #ad6800; }
+
+        .rank-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .rank-name {
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .rank-merchant {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .rank-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        /* 快捷入口 */
+        .quick-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .quick-header {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 16px;
+        }
+
+        .quick-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 16px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quick-item:hover {
+            background: #e6f7ff;
+        }
+
+        .quick-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .quick-icon.blue { background: #e6f7ff; color: var(--primary-color); }
+        .quick-icon.green { background: #f6ffed; color: var(--success-color); }
+        .quick-icon.orange { background: #fff7e6; color: var(--warning-color); }
+        .quick-icon.red { background: #fff1f0; color: var(--danger-color); }
+        .quick-icon.purple { background: #f9f0ff; color: #722ed1; }
+        .quick-icon.cyan { background: #e6fffb; color: #13c2c2; }
+
+        .quick-label {
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        /* 弹窗 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: hidden;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 24px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        /* 表格 */
+        .table-wrapper {
+            flex: 1;
+            overflow: auto;
+            min-height: 0;
+        }
+
+        .table-container {
+            min-width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--bg-color);
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: var(--bg-color);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .status-badge.pending {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+
+        .status-badge.approved {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .status-badge.rejected {
+            background: #fff1f0;
+            color: #ff4d4f;
+        }
+
+        .action-btn {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            margin-right: 8px;
+        }
+
+        .action-btn.primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .action-btn.primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .action-btn.secondary {
+            background: var(--bg-color);
+            color: var(--text-primary);
+        }
+
+        .action-btn.secondary:hover {
+            background: var(--border-color);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Toast提示 -->
+        <div class="toast" id="toast"></div>
+
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>支付系统</span>
+                </div>
+                <div class="sidebar-subtitle">运营管理后台</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-group">
+                    <div class="nav-group-title">首页</div>
+                    <div class="nav-item active">
+                        <i class="fas fa-home"></i>
+                        <span>工作台</span>
+                    </div>
+                </div>
+                <div class="nav-group">
+                    <div class="nav-group-title">商户管理</div>
+                    <div class="nav-item" onclick="showPage('merchant')">
+                        <i class="fas fa-store"></i>
+                        <span>商户列表</span>
+                    </div>
+                    <div class="nav-item" onclick="showPage('merchantReview')">
+                        <i class="fas fa-user-check"></i>
+                        <span>入驻审核</span>
+                        <span class="nav-badge">3</span>
+                    </div>
+                </div>
+                <div class="nav-group">
+                    <div class="nav-group-title">资金管理</div>
+                    <div class="nav-item" onclick="showPage('withdraw')">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>提现审核</span>
+                        <span class="nav-badge">8</span>
+                    </div>
+                    <div class="nav-item" onclick="showPage('transactions')">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>交易流水</span>
+                    </div>
+                </div>
+                <div class="nav-group">
+                    <div class="nav-group-title">账户管理</div>
+                    <div class="nav-item" onclick="showPage('userManage')">
+                        <i class="fas fa-users"></i>
+                        <span>用户管理</span>
+                    </div>
+                    <div class="nav-item" onclick="showPage('accountFreeze')">
+                        <i class="fas fa-snowflake"></i>
+                        <span>账户冻结</span>
+                    </div>
+                </div>
+                <div class="nav-group">
+                    <div class="nav-group-title">系统设置</div>
+                    <div class="nav-item" onclick="showPage('settings')">
+                        <i class="fas fa-cog"></i>
+                        <span>系统配置</span>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="admin-info">
+                    <div class="admin-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="admin-detail">
+                        <div class="admin-name">管理员小明</div>
+                        <div class="admin-role">超级管理员</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <div class="main-wrapper">
+            <header class="header">
+                <div class="header-left">
+                    <h1 class="page-title">工作台</h1>
+                </div>
+                <div class="header-right">
+                    <div class="header-time" id="currentTime">2026-05-22 14:30:00</div>
+                    <div class="header-icon" onclick="showNotifications()">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">5</span>
+                    </div>
+                    <div class="header-icon" onclick="showMessages()">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="header-icon" onclick="showSettings()">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                </div>
+            </header>
+
+            <main class="main">
+                <!-- 欢迎卡片 -->
+                <div class="welcome-card">
+                    <div class="welcome-content">
+                        <div class="welcome-text">
+                            <h2>下午好，管理员小明 👋</h2>
+                            <p>今天是2026年5月22日，星期五，本周已完成87笔审核</p>
+                        </div>
+                        <div class="welcome-stats">
+                            <div class="welcome-stat">
+                                <div class="welcome-stat-value">128</div>
+                                <div class="welcome-stat-label">今日交易笔数</div>
+                            </div>
+                            <div class="welcome-stat">
+                                <div class="welcome-stat-value">¥856,420</div>
+                                <div class="welcome-stat-label">今日交易金额</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据统计 -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon blue">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-trend up">
+                                <i class="fas fa-arrow-up"></i> 12.5%
+                            </div>
+                        </div>
+                        <div class="stat-value">12,580</div>
+                        <div class="stat-label">注册用户数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon green">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <div class="stat-trend up">
+                                <i class="fas fa-arrow-up"></i> 8.3%
+                            </div>
+                        </div>
+                        <div class="stat-value">1,256</div>
+                        <div class="stat-label">入驻商户数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon orange">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                            <div class="stat-trend down">
+                                <i class="fas fa-arrow-down"></i> 3.2%
+                            </div>
+                        </div>
+                        <div class="stat-value">¥2,458,960</div>
+                        <div class="stat-label">今日流水</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon red">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-trend">
+                                待处理
+                            </div>
+                        </div>
+                        <div class="stat-value">11</div>
+                        <div class="stat-label">待审核事项</div>
+                    </div>
+                </div>
+
+                <!-- 待办任务 -->
+                <div class="todo-section">
+                    <!-- 商户入驻待审核 -->
+                    <div class="todo-card">
+                        <div class="todo-header">
+                            <div class="todo-title">
+                                <i class="fas fa-user-check"></i>
+                                商户入驻审核
+                            </div>
+                            <span class="todo-more" onclick="showPage('merchantReview')">查看全部</span>
+                        </div>
+                        <div class="todo-list">
+                            <div class="todo-item">
+                                <div class="todo-icon urgent">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="todo-info">
+                                    <div class="todo-info-title">杭州XX网络科技公司</div>
+                                    <div class="todo-info-desc">提交时间：2小时前</div>
+                                </div>
+                                <div class="todo-action" onclick="showReviewModal('merchant')">立即处理</div>
+                            </div>
+                            <div class="todo-item">
+                                <div class="todo-icon pending">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="todo-info">
+                                    <div class="todo-info-title">北京XX餐饮管理公司</div>
+                                    <div class="todo-info-desc">提交时间：5小时前</div>
+                                </div>
+                                <div class="todo-action" onclick="showReviewModal('merchant')">立即处理</div>
+                            </div>
+                            <div class="todo-item">
+                                <div class="todo-icon pending">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="todo-info">
+                                    <div class="todo-info-title">上海XX贸易有限公司</div>
+                                    <div class="todo-info-desc">提交时间：1天前</div>
+                                </div>
+                                <div class="todo-action" onclick="showReviewModal('merchant')">立即处理</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 提现待审核 -->
+                    <div class="todo-card">
+                        <div class="todo-header">
+                            <div class="todo-title">
+                                <i class="fas fa-arrow-up"></i>
+                                提现审核
+                            </div>
+                            <span class="todo-more" onclick="showPage('withdraw')">查看全部</span>
+                        </div>
+                        <div class="todo-list">
+                            <div class="todo-item">
+                                <div class="todo-icon urgent">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="todo-info">
+                                    <div class="todo-info-title">用户：张三 - ¥50,000.00</div>
+                                    <div class="todo-info-desc">申请时间：30分钟前</div>
+                                </div>
+                                <div class="todo-action" onclick="showReviewModal('withdraw')">立即处理</div>
+                            </div>
+                            <div class="todo-item">
+                                <div class="todo-icon pending">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="todo-info">
+                                    <div class="todo-info-title">用户：李四 - ¥8,888.00</div>
+                                    <div class="todo-info-desc">申请时间：2小时前</div>
+                                </div>
+                                <div class="todo-action" onclick="showReviewModal('withdraw')">立即处理</div>
+                            </div>
+                            <div class="todo-item">
+                                <div class="todo-icon pending">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="todo-info">
+                                    <div class="todo-info-title">商户：星巴克XX店 - ¥12,500.00</div>
+                                    <div class="todo-info-desc">申请时间：3小时前</div>
+                                </div>
+                                <div class="todo-action" onclick="showReviewModal('withdraw')">立即处理</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 异常提醒 -->
+                    <div class="todo-card">
+                        <div class="todo-header">
+                            <div class="todo-title">
+                                <i class="fas fa-exclamation-circle"></i>
+                                异常提醒
+                            </div>
+                            <span class="todo-more">查看全部</span>
+                        </div>
+                        <div class="todo-list">
+                            <div class="todo-item">
+                                <div class="todo-icon urgent">
+                                    <i class="fas fa-ban"></i>
+                                </div>
+                                <div class="todo-info">
+                                    <div class="todo-info-title">账户异常：用户王五</div>
+                                    <div class="todo-info-desc">触发风控规则：大额频繁转账</div>
+                                </div>
+                                <div class="todo-action" onclick="showReviewModal('freeze')">查看</div>
+                            </div>
+                            <div class="todo-item">
+                                <div class="todo-icon pending">
+                                    <i class="fas fa-sync-alt"></i>
+                                </div>
+                                <div class="todo-info">
+                                    <div class="todo-info-title">对账不平：5月21日</div>
+                                    <div class="todo-info-desc">差异金额：¥128.50</div>
+                                </div>
+                                <div class="todo-action" onclick="showReviewModal('reconcile')">查看</div>
+                            </div>
+                            <div class="todo-item">
+                                <div class="todo-icon pending">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="todo-info">
+                                    <div class="todo-info-title">通道异常：工商银行</div>
+                                    <div class="todo-info-desc">发生时间：14:20</div>
+                                </div>
+                                <div class="todo-action" onclick="showReviewModal('channel')">查看</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 图表区域 -->
+                <div class="chart-section">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">交易趋势</div>
+                            <div class="chart-tabs">
+                                <span class="chart-tab active">今日</span>
+                                <span class="chart-tab">本周</span>
+                                <span class="chart-tab">本月</span>
+                            </div>
+                        </div>
+                        <div class="chart-placeholder">
+                            <i class="fas fa-chart-line"></i>
+                            <div>交易趋势图表</div>
+                            <div style="font-size: 12px;">近7天交易走势展示区域</div>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">交易排行榜</div>
+                        </div>
+                        <div class="rank-list">
+                            <div class="rank-item">
+                                <div class="rank-no top1">1</div>
+                                <div class="rank-info">
+                                    <div class="rank-name">星巴克咖啡（XX店）</div>
+                                    <div class="rank-merchant">商户</div>
+                                </div>
+                                <div class="rank-value">¥125,680</div>
+                            </div>
+                            <div class="rank-item">
+                                <div class="rank-no top2">2</div>
+                                <div class="rank-info">
+                                    <div class="rank-name">杭州XX网络科技</div>
+                                    <div class="rank-merchant">商户</div>
+                                </div>
+                                <div class="rank-value">¥98,450</div>
+                            </div>
+                            <div class="rank-item">
+                                <div class="rank-no top3">3</div>
+                                <div class="rank-info">
+                                    <div class="rank-name">用户 张三</div>
+                                    <div class="rank-merchant">个人</div>
+                                </div>
+                                <div class="rank-value">¥86,320</div>
+                            </div>
+                            <div class="rank-item">
+                                <div class="rank-no">4</div>
+                                <div class="rank-info">
+                                    <div class="rank-name">北京XX餐饮管理</div>
+                                    <div class="rank-merchant">商户</div>
+                                </div>
+                                <div class="rank-value">¥72,150</div>
+                            </div>
+                            <div class="rank-item">
+                                <div class="rank-no">5</div>
+                                <div class="rank-info">
+                                    <div class="rank-name">用户 李四</div>
+                                    <div class="rank-merchant">个人</div>
+                                </div>
+                                <div class="rank-value">¥65,800</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快捷入口 -->
+                <div class="quick-section">
+                    <div class="quick-header">快捷操作</div>
+                    <div class="quick-grid">
+                        <div class="quick-item" onclick="showPage('merchantReview')">
+                            <div class="quick-icon blue">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div class="quick-label">商户审核</div>
+                        </div>
+                        <div class="quick-item" onclick="showPage('withdraw')">
+                            <div class="quick-icon orange">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <div class="quick-label">提现审核</div>
+                        </div>
+                        <div class="quick-item" onclick="showPage('accountFreeze')">
+                            <div class="quick-icon red">
+                                <i class="fas fa-snowflake"></i>
+                            </div>
+                            <div class="quick-label">账户冻结</div>
+                        </div>
+                        <div class="quick-item" onclick="showPage('transactions')">
+                            <div class="quick-icon green">
+                                <i class="fas fa-list"></i>
+                            </div>
+                            <div class="quick-label">交易流水</div>
+                        </div>
+                        <div class="quick-item" onclick="showPage('reconcile')">
+                            <div class="quick-icon purple">
+                                <i class="fas fa-sync-alt"></i>
+                            </div>
+                            <div class="quick-label">日终对账</div>
+                        </div>
+                        <div class="quick-item" onclick="showPage('report')">
+                            <div class="quick-icon cyan">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="quick-label">数据报表</div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 审核模态框 -->
+    <div class="modal" id="reviewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">商户入驻审核</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>商户名称</th>
+                            <th>信用代码</th>
+                            <th>法人代表</th>
+                            <th>申请时间</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>杭州XX网络科技公司</td>
+                            <td>91330000XXXXXXXX</td>
+                            <td>王XX</td>
+                            <td>2026-05-22 12:30</td>
+                            <td><span class="status-badge pending">待审核</span></td>
+                            <td>
+                                <button class="action-btn primary" onclick="approveMerchant(this)">通过</button>
+                                <button class="action-btn secondary" onclick="rejectMerchant(this)">拒绝</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>北京XX餐饮管理公司</td>
+                            <td>91110000XXXXXXXX</td>
+                            <td>李XX</td>
+                            <td>2026-05-22 09:15</td>
+                            <td><span class="status-badge pending">待审核</span></td>
+                            <td>
+                                <button class="action-btn primary" onclick="approveMerchant(this)">通过</button>
+                                <button class="action-btn secondary" onclick="rejectMerchant(this)">拒绝</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>上海XX贸易有限公司</td>
+                            <td>91310000XXXXXXXX</td>
+                            <td>张XX</td>
+                            <td>2026-05-21 16:45</td>
+                            <td><span class="status-badge pending">待审核</span></td>
+                            <td>
+                                <button class="action-btn primary" onclick="approveMerchant(this)">通过</button>
+                                <button class="action-btn secondary" onclick="rejectMerchant(this)">拒绝</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const formatted = now.getFullYear() + '-' + 
+                String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                String(now.getDate()).padStart(2, '0') + ' ' + 
+                String(now.getHours()).padStart(2, '0') + ':' + 
+                String(now.getMinutes()).padStart(2, '0') + ':' + 
+                String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('currentTime').textContent = formatted;
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function showPage(page) {
+            showToast('跳转到：' + page);
+        }
+
+        function showNotifications() {
+            showToast('通知中心');
+        }
+
+        function showMessages() {
+            showToast('消息中心');
+        }
+
+        function showSettings() {
+            showToast('系统设置');
+        }
+
+        function showReviewModal(type) {
+            document.getElementById('reviewModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('reviewModal').classList.remove('show');
+        }
+
+        function approveMerchant(btn) {
+            const row = btn.closest('tr');
+            const badge = row.querySelector('.status-badge');
+            badge.className = 'status-badge approved';
+            badge.textContent = '已通过';
+            row.querySelectorAll('.action-btn').forEach(b => b.style.display = 'none');
+            showToast('审核通过');
+        }
+
+        function rejectMerchant(btn) {
+            const reason = prompt('请输入拒绝原因：');
+            if (reason) {
+                const row = btn.closest('tr');
+                const badge = row.querySelector('.status-badge');
+                badge.className = 'status-badge rejected';
+                badge.textContent = '已拒绝';
+                row.querySelectorAll('.action-btn').forEach(b => b.style.display = 'none');
+                showToast('已拒绝：' + reason);
+            }
+        }
+
+        document.querySelectorAll('.chart-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        document.getElementById('reviewModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

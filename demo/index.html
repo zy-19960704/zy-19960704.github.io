@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支付账户系统 - Demo 演示</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1890ff;
+            --primary-hover: #40a9ff;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --danger-color: #ff4d4f;
+            --text-primary: #262626;
+            --text-secondary: #8c8c8c;
+            --text-tertiary: #bfbfbf;
+            --border-color: #e8e8e8;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .systems-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .system-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .system-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .system-preview {
+            height: 280px;
+            background: var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .system-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .system-card:hover .system-preview img {
+            transform: scale(1.05);
+        }
+
+        .system-preview-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 50%);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 16px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .system-card:hover .system-preview-overlay {
+            opacity: 1;
+        }
+
+        .preview-btn {
+            padding: 8px 20px;
+            background: white;
+            color: var(--text-primary);
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .system-info {
+            padding: 24px;
+        }
+
+        .system-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+
+        .system-icon.c-user {
+            background: linear-gradient(135deg, #1890ff 0%, #0050b3 100%);
+            color: white;
+        }
+
+        .system-icon.c-merchant {
+            background: linear-gradient(135deg, #52c41a 0%, #237804 100%);
+            color: white;
+        }
+
+        .system-icon.c-admin {
+            background: linear-gradient(135deg, #faad14 0%, #ad6800 100%);
+            color: white;
+        }
+
+        .system-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .system-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .system-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .feature-tag {
+            padding: 4px 12px;
+            background: var(--bg-color);
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 48px;
+            color: white;
+            opacity: 0.8;
+        }
+
+        .footer p {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+        }
+
+        .footer-link {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+        }
+
+        .footer-link:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 992px) {
+            .systems-grid {
+                grid-template-columns: 1fr;
+                max-width: 500px;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 支付账户系统 Demo</h1>
+            <p>完整的第三方支付账户系统 MVP 版本演示</p>
+        </div>
+
+        <div class="systems-grid">
+            <!-- C端用户系统 -->
+            <div class="system-card" onclick="openDemo('user-home.html')">
+                <div class="system-preview">
+                    <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #1890ff 0%, #0050b3 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; padding: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 12px;">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div style="font-size: 14px; text-align: center; opacity: 0.9;">
+                            用户首页 · 充值<br>
+                            支付 · 提现
+                        </div>
+                    </div>
+                    <div class="system-preview-overlay">
+                        <span class="preview-btn">
+                            <i class="fas fa-play"></i> 立即体验
+                        </span>
+                    </div>
+                </div>
+                <div class="system-info">
+                    <div class="system-icon c-user">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h3 class="system-title">C端用户系统</h3>
+                    <p class="system-desc">面向个人用户的账户管理、充值、支付、提现等核心功能</p>
+                    <div class="system-features">
+                        <span class="feature-tag">账户注册</span>
+                        <span class="feature-tag">实名认证</span>
+                        <span class="feature-tag">银行卡绑定</span>
+                        <span class="feature-tag">余额充值</span>
+                        <span class="feature-tag">扫码支付</span>
+                        <span class="feature-tag">余额提现</span>
+                        <span class="feature-tag">交易记录</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- B端商户系统 -->
+            <div class="system-card" onclick="openDemo('merchant-register.html')">
+                <div class="system-preview">
+                    <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #52c41a 0%, #237804 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; padding: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 12px;">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <div style="font-size: 14px; text-align: center; opacity: 0.9;">
+                            商户入驻 · 收款<br>
+                            结算 · 数据看板
+                        </div>
+                    </div>
+                    <div class="system-preview-overlay">
+                        <span class="preview-btn">
+                            <i class="fas fa-play"></i> 立即体验
+                        </span>
+                    </div>
+                </div>
+                <div class="system-info">
+                    <div class="system-icon c-merchant">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h3 class="system-title">B端商户系统</h3>
+                    <p class="system-desc">面向商户的入驻申请、资质审核、收款管理、资金结算等功能</p>
+                    <div class="system-features">
+                        <span class="feature-tag">商户入驻</span>
+                        <span class="feature-tag">资质审核</span>
+                        <span class="feature-tag">收款二维码</span>
+                        <span class="feature-tag">交易记录</span>
+                        <span class="feature-tag">资金结算</span>
+                        <span class="feature-tag">数据看板</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 运营后台 -->
+            <div class="system-card" onclick="openDemo('admin-dashboard.html')">
+                <div class="system-preview">
+                    <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #faad14 0%, #ad6800 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; padding: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 12px;">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div style="font-size: 14px; text-align: center; opacity: 0.9;">
+                            工作台 · 审核<br>
+                            账户管理 · 数据
+                        </div>
+                    </div>
+                    <div class="system-preview-overlay">
+                        <span class="preview-btn">
+                            <i class="fas fa-play"></i> 立即体验
+                        </span>
+                    </div>
+                </div>
+                <div class="system-info">
+                    <div class="system-icon c-admin">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="system-title">运营管理后台</h3>
+                    <p class="system-desc">面向运营人员的商户审核、提现审核、账户管理、数据看板等功能</p>
+                    <div class="system-features">
+                        <span class="feature-tag">工作台</span>
+                        <span class="feature-tag">商户审核</span>
+                        <span class="feature-tag">提现审核</span>
+                        <span class="feature-tag">账户冻结</span>
+                        <span class="feature-tag">交易流水</span>
+                        <span class="feature-tag">数据统计</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>基于 MVP 设计方案构建 · 支持 To B + To C 多商户架构</p>
+            <div class="footer-links">
+                <a href="#" class="footer-link" onclick="showDocs(event)">
+                    <i class="fas fa-file-alt"></i> 设计文档
+                </a>
+                <a href="#" class="footer-link" onclick="showArch(event)">
+                    <i class="fas fa-project-diagram"></i> 架构设计
+                </a>
+                <a href="#" class="footer-link" onclick="showDB(event)">
+                    <i class="fas fa-database"></i> 数据库设计
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openDemo(page) {
+            window.open(page, '_blank');
+        }
+
+        function showDocs(e) {
+            e.preventDefault();
+            alert('设计文档页面\n\n包含：\n• 需求分析文档\n• 用户故事\n• 功能规格说明\n• 业务流程图');
+        }
+
+        function showArch(e) {
+            e.preventDefault();
+            alert('技术架构设计\n\n包含：\n• 系统架构图\n• 账户中心设计\n• 资金中心设计\n• 接口设计');
+        }
+
+        function showDB(e) {
+            e.preventDefault();
+            alert('数据库设计\n\n包含：\n• 数据模型设计\n• 表结构设计\n• 索引设计\n• ER图');
+        }
+    </script>
+</body>
+</html>

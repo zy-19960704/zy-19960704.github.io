@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账户系统 - 用户首页</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1890ff;
+            --primary-hover: #40a9ff;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --danger-color: #ff4d4f;
+            --text-primary: #262626;
+            --text-secondary: #8c8c8c;
+            --text-tertiary: #bfbfbf;
+            --border-color: #e8e8e8;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 头部导航 */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #0050b3 100%);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .header-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .header-icon:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 主内容区 */
+        .main {
+            flex: 1;
+            padding: 20px;
+            max-width: 480px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* 余额卡片 */
+        .balance-card {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #0050b3 100%);
+            border-radius: 16px;
+            padding: 24px;
+            color: white;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+        }
+
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .balance-amount {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .balance-details {
+            display: flex;
+            gap: 24px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .balance-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .balance-item-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .balance-item-value {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* 操作入口 */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .action-item {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .action-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .action-icon.recharge { background: #e6f7ff; color: var(--primary-color); }
+        .action-icon.pay { background: #f6ffed; color: var(--success-color); }
+        .action-icon.collect { background: #fff7e6; color: var(--warning-color); }
+        .action-icon.withdraw { background: #fff1f0; color: var(--danger-color); }
+
+        .action-label {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* 功能列表 */
+        .feature-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .feature-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .feature-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .feature-more {
+            color: var(--text-tertiary);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .feature-item {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .feature-item:last-child {
+            border-bottom: none;
+        }
+
+        .feature-item:hover {
+            background: var(--bg-color);
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .feature-icon.blue { background: #e6f7ff; color: var(--primary-color); }
+        .feature-icon.green { background: #f6ffed; color: var(--success-color); }
+        .feature-icon.orange { background: #fff7e6; color: var(--warning-color); }
+
+        .feature-content {
+            flex: 1;
+        }
+
+        .feature-name {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .feature-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .feature-arrow {
+            color: var(--text-tertiary);
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            position: sticky;
+            bottom: 0;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 16px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-item i {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item span {
+            font-size: 12px;
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading.show {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast提示 */
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* 模态框 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 480px;
+            border-radius: 16px 16px 0 0;
+            max-height: 80vh;
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        /* 金额输入 */
+        .amount-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .amount-prefix {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .amount-input {
+            flex: 1;
+            font-size: 32px;
+            font-weight: 700;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+        }
+
+        .amount-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        /* 银行卡选择 */
+        .bank-card-list {
+            margin-bottom: 20px;
+        }
+
+        .bank-card-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: var(--bg-color);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .bank-card-item.selected {
+            border-color: var(--primary-color);
+            background: #e6f7ff;
+        }
+
+        .bank-card-item:hover {
+            border-color: var(--primary-color);
+        }
+
+        .bank-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .bank-info {
+            flex: 1;
+        }
+
+        .bank-name {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .bank-card-no {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .bank-check {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bank-card-item.selected .bank-check {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        /* 二维码区域 */
+        .qrcode-area {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .qrcode-box {
+            width: 240px;
+            height: 240px;
+            background: white;
+            margin: 0 auto 20px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .qrcode-placeholder {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, #f5f5f5 25%, transparent 25%),
+                        linear-gradient(-45deg, #f5f5f5 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, #f5f5f5 75%),
+                        linear-gradient(-45deg, transparent 75%, #f5f5f5 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .qrcode-icon {
+            font-size: 80px;
+            color: var(--primary-color);
+        }
+
+        .qrcode-tip {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .qrcode-amount {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* 收款码输入 */
+        .collect-input {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .collect-input .form-input {
+            flex: 1;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .collect-input .btn {
+            flex-shrink: 0;
+        }
+
+        /* 交易记录列表 */
+        .trans-list {
+            padding: 0 20px;
+        }
+
+        .trans-date {
+            font-size: 14px;
+            font-weight: 600;
+            padding: 12px 0;
+            color: var(--text-secondary);
+        }
+
+        .trans-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .trans-item:last-child {
+            border-bottom: none;
+        }
+
+        .trans-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .trans-icon.income {
+            background: #f6ffed;
+            color: var(--success-color);
+        }
+
+        .trans-icon.expense {
+            background: #fff1f0;
+            color: var(--danger-color);
+        }
+
+        .trans-info {
+            flex: 1;
+        }
+
+        .trans-type {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .trans-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .trans-amount {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .trans-amount.income {
+            color: var(--success-color);
+        }
+
+        .trans-amount.expense {
+            color: var(--danger-color);
+        }
+
+        /* 账户信息 */
+        .account-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- 加载动画 -->
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+        </div>
+
+        <!-- Toast提示 -->
+        <div class="toast" id="toast"></div>
+
+        <!-- 头部 -->
+        <header class="header">
+            <div class="account-info" onclick="showAccountInfo()">
+                <div class="avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <div style="font-size: 16px; font-weight: 600;">张三</div>
+                    <div style="font-size: 12px; opacity: 0.8;">138****8888</div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="header-icon" onclick="showMessages()">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="header-icon" onclick="showSettings()">
+                    <i class="fas fa-cog"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主内容区 -->
+        <main class="main">
+            <!-- 余额卡片 -->
+            <div class="balance-card" onclick="showBalanceDetail()">
+                <div class="balance-label">账户余额（元）</div>
+                <div class="balance-amount">8,888.88</div>
+                <div class="balance-details">
+                    <div class="balance-item">
+                        <span class="balance-item-label">可用余额</span>
+                        <span class="balance-item-value">8,500.00</span>
+                    </div>
+                    <div class="balance-item">
+                        <span class="balance-item-label">冻结金额</span>
+                        <span class="balance-item-value">388.88</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快捷操作 -->
+            <div class="action-grid">
+                <div class="action-item" onclick="showRecharge()">
+                    <div class="action-icon recharge">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="action-label">充值</div>
+                </div>
+                <div class="action-item" onclick="showPay()">
+                    <div class="action-icon pay">
+                        <i class="fas fa-paper-plane"></i>
+                    </div>
+                    <div class="action-label">付款</div>
+                </div>
+                <div class="action-item" onclick="showCollect()">
+                    <div class="action-icon collect">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <div class="action-label">收款</div>
+                </div>
+                <div class="action-item" onclick="showWithdraw()">
+                    <div class="action-icon withdraw">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="action-label">提现</div>
+                </div>
+            </div>
+
+            <!-- 最近交易 -->
+            <div class="feature-section">
+                <div class="feature-header">
+                    <span class="feature-title">最近交易</span>
+                    <span class="feature-more" onclick="showAllTransactions()">
+                        全部 <i class="fas fa-chevron-right"></i>
+                    </span>
+                </div>
+                <div class="trans-list" id="transList">
+                    <div class="trans-date">今天</div>
+                    <div class="trans-item">
+                        <div class="trans-icon income">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="trans-info">
+                            <div class="trans-type">充值</div>
+                            <div class="trans-time">10:30:25</div>
+                        </div>
+                        <div class="trans-amount income">+1,000.00</div>
+                    </div>
+                    <div class="trans-item">
+                        <div class="trans-icon expense">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                        <div class="trans-info">
+                            <div class="trans-type">支付-星巴克咖啡</div>
+                            <div class="trans-time">09:15:42</div>
+                        </div>
+                        <div class="trans-amount expense">-38.50</div>
+                    </div>
+                    <div class="trans-item">
+                        <div class="trans-icon income">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="trans-info">
+                            <div class="trans-type">收款-李四</div>
+                            <div class="trans-time">08:50:10</div>
+                        </div>
+                        <div class="trans-amount income">+200.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能入口 -->
+            <div class="feature-section">
+                <div class="feature-item" onclick="showBankCards()">
+                    <div class="feature-icon blue">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="feature-content">
+                        <div class="feature-name">银行卡管理</div>
+                        <div class="feature-desc">已绑定2张银行卡</div>
+                    </div>
+                    <div class="feature-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="feature-item" onclick="showSecurity()">
+                    <div class="feature-icon green">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="feature-content">
+                        <div class="feature-name">安全中心</div>
+                        <div class="feature-desc">支付密码、指纹等</div>
+                    </div>
+                    <div class="feature-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="feature-item" onclick="showHelp()">
+                    <div class="feature-icon orange">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <div class="feature-content">
+                        <div class="feature-name">帮助与客服</div>
+                        <div class="feature-desc">常见问题、联系客服</div>
+                    </div>
+                    <div class="feature-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 底部导航 -->
+        <nav class="bottom-nav">
+            <div class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+            </div>
+            <div class="nav-item" onclick="showTransactions()">
+                <i class="fas fa-list"></i>
+                <span>记录</span>
+            </div>
+            <div class="nav-item" onclick="showCollectCenter()">
+                <i class="fas fa-qrcode"></i>
+                <span>收款</span>
+            </div>
+            <div class="nav-item" onclick="showMine()">
+                <i class="fas fa-user"></i>
+                <span>我的</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 充值模态框 -->
+    <div class="modal" id="rechargeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>充值</span>
+                <button class="modal-close" onclick="closeModal('rechargeModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="amount-input-wrapper">
+                    <span class="amount-prefix">¥</span>
+                    <input type="text" class="amount-input" id="rechargeAmount" placeholder="0.00" oninput="formatAmount(this)">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">选择银行卡</label>
+                    <div class="bank-card-list">
+                        <div class="bank-card-item selected" onclick="selectBank(this)">
+                            <div class="bank-icon">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <div class="bank-info">
+                                <div class="bank-name">中国工商银行</div>
+                                <div class="bank-card-no">储蓄卡 **** 4582</div>
+                            </div>
+                            <div class="bank-check">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                        <div class="bank-card-item" onclick="selectBank(this)">
+                            <div class="bank-icon" style="background: #e5312e;">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <div class="bank-info">
+                                <div class="bank-name">招商银行</div>
+                                <div class="bank-card-no">信用卡 **** 1234</div>
+                            </div>
+                            <div class="bank-check"></div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-block" onclick="confirmRecharge()">
+                    确认充值
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提现模态框 -->
+    <div class="modal" id="withdrawModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>提现</span>
+                <button class="modal-close" onclick="closeModal('withdrawModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="padding: 16px; background: var(--bg-color); border-radius: 8px; margin-bottom: 20px;">
+                    <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 4px;">可提现余额</div>
+                    <div style="font-size: 28px; font-weight: 700; color: var(--text-primary);">¥8,500.00</div>
+                </div>
+                <div class="amount-input-wrapper">
+                    <span class="amount-prefix">¥</span>
+                    <input type="text" class="amount-input" id="withdrawAmount" placeholder="0.00" oninput="formatAmount(this)">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">提现至</label>
+                    <div class="bank-card-list">
+                        <div class="bank-card-item selected">
+                            <div class="bank-icon">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <div class="bank-info">
+                                <div class="bank-name">中国工商银行</div>
+                                <div class="bank-card-no">储蓄卡 **** 4582</div>
+                            </div>
+                            <div class="bank-check">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 20px;">
+                    <i class="fas fa-info-circle"></i> 提现将在1-3个工作日内到账，预计无手续费
+                </div>
+                <button class="btn btn-primary btn-block" onclick="confirmWithdraw()">
+                    确认提现
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 付款模态框 -->
+    <div class="modal" id="payModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>付款</span>
+                <button class="modal-close" onclick="closeModal('payModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">扫描商家二维码</label>
+                    <div class="qrcode-area" style="background: var(--bg-color); border-radius: 12px; margin-bottom: 20px;">
+                        <div class="qrcode-box">
+                            <div class="qrcode-placeholder">
+                                <i class="fas fa-qrcode qrcode-icon"></i>
+                            </div>
+                        </div>
+                        <div class="qrcode-tip">将二维码放入框内即可扫描</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">或输入商家收款码</label>
+                    <div class="collect-input">
+                        <input type="text" class="form-input" placeholder="粘贴商家收款码">
+                        <button class="btn btn-primary">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 收款模态框 -->
+    <div class="modal" id="collectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>收款</span>
+                <button class="modal-close" onclick="closeModal('collectModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="collect-input">
+                    <input type="text" class="form-input" id="collectAmount" placeholder="输入收款金额">
+                    <button class="btn btn-primary" onclick="generateCollectQR()">生成</button>
+                </div>
+                <div class="qrcode-area" id="collectQRCode" style="display: none;">
+                    <div class="qrcode-box">
+                        <div class="qrcode-placeholder">
+                            <i class="fas fa-qrcode qrcode-icon"></i>
+                        </div>
+                    </div>
+                    <div class="qrcode-amount" id="collectDisplayAmount">¥0.00</div>
+                    <div class="qrcode-tip">让对方扫描二维码付款</div>
+                </div>
+                <div style="text-align: center; padding: 20px; color: var(--text-secondary);" id="collectTip">
+                    <i class="fas fa-hand-holding-usd" style="font-size: 48px; margin-bottom: 12px; opacity: 0.5;"></i>
+                    <div>输入金额后点击"生成"即可</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 显示Toast提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 显示加载中
+        function showLoading() {
+            document.getElementById('loading').classList.add('show');
+        }
+
+        // 隐藏加载中
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('show');
+        }
+
+        // 打开模态框
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
+        }
+
+        // 关闭模态框
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        // 格式化金额输入
+        function formatAmount(input) {
+            let value = input.value.replace(/[^\d.]/g, '');
+            const parts = value.split('.');
+            if (parts.length > 2) {
+                value = parts[0] + '.' + parts.slice(1).join('');
+            }
+            if (parts[1] && parts[1].length > 2) {
+                value = parts[0] + '.' + parts[1].substring(0, 2);
+            }
+            input.value = value;
+        }
+
+        // 选择银行卡
+        function selectBank(element) {
+            document.querySelectorAll('.bank-card-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            element.classList.add('selected');
+        }
+
+        // 充值确认
+        function confirmRecharge() {
+            const amount = document.getElementById('rechargeAmount').value;
+            if (!amount || parseFloat(amount) <= 0) {
+                showToast('请输入充值金额');
+                return;
+            }
+            showLoading();
+            setTimeout(() => {
+                hideLoading();
+                closeModal('rechargeModal');
+                showToast('充值成功');
+                document.getElementById('rechargeAmount').value = '';
+            }, 1500);
+        }
+
+        // 提现确认
+        function confirmWithdraw() {
+            const amount = document.getElementById('withdrawAmount').value;
+            if (!amount || parseFloat(amount) <= 0) {
+                showToast('请输入提现金额');
+                return;
+            }
+            showLoading();
+            setTimeout(() => {
+                hideLoading();
+                closeModal('withdrawModal');
+                showToast('提现申请已提交');
+                document.getElementById('withdrawAmount').value = '';
+            }, 1500);
+        }
+
+        // 生成收款码
+        function generateCollectQR() {
+            const amount = document.getElementById('collectAmount').value;
+            if (!amount || parseFloat(amount) <= 0) {
+                showToast('请输入收款金额');
+                return;
+            }
+            document.getElementById('collectDisplayAmount').textContent = '¥' + parseFloat(amount).toFixed(2);
+            document.getElementById('collectTip').style.display = 'none';
+            document.getElementById('collectQRCode').style.display = 'block';
+        }
+
+        // 各功能入口点击
+        function showRecharge() {
+            openModal('rechargeModal');
+        }
+
+        function showWithdraw() {
+            openModal('withdrawModal');
+        }
+
+        function showPay() {
+            openModal('payModal');
+        }
+
+        function showCollect() {
+            document.getElementById('collectAmount').value = '';
+            document.getElementById('collectTip').style.display = 'block';
+            document.getElementById('collectQRCode').style.display = 'none';
+            openModal('collectModal');
+        }
+
+        function showBalanceDetail() {
+            showToast('可用余额：8,500.00元\n冻结金额：388.88元');
+        }
+
+        function showAccountInfo() {
+            showToast('个人中心页面');
+        }
+
+        function showMessages() {
+            showToast('消息中心');
+        }
+
+        function showSettings() {
+            showToast('设置页面');
+        }
+
+        function showBankCards() {
+            showToast('银行卡管理');
+        }
+
+        function showSecurity() {
+            showToast('安全中心');
+        }
+
+        function showHelp() {
+            showToast('帮助与客服');
+        }
+
+        function showAllTransactions() {
+            showToast('全部交易记录');
+        }
+
+        function showTransactions() {
+            showToast('交易记录页面');
+        }
+
+        function showCollectCenter() {
+            showToast('收款中心');
+        }
+
+        function showMine() {
+            showToast('个人中心');
+        }
+
+        // 点击模态框背景关闭
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
