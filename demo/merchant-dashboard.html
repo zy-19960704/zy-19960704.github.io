@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商户管理 - 数据看板</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1890ff;
+            --primary-hover: #40a9ff;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --danger-color: #ff4d4f;
+            --text-primary: #262626;
+            --text-secondary: #8c8c8c;
+            --text-tertiary: #bfbfbf;
+            --border-color: #e8e8e8;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .app {
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 240px;
+            background: linear-gradient(180deg, #001529 0%, #000c17 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-logo {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-logo i {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        .sidebar-subtitle {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.65);
+            margin-top: 4px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.65);
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item.active {
+            color: white;
+            background: rgba(24, 144, 255, 0.15);
+            border-left-color: var(--primary-color);
+        }
+
+        .nav-item i {
+            width: 18px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .merchant-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .merchant-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .merchant-detail {
+            flex: 1;
+        }
+
+        .merchant-name {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .merchant-status {
+            font-size: 12px;
+            color: var(--success-color);
+        }
+
+        /* 主内容区 */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: white;
+            padding: 0 24px;
+            height: 60px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .date-selector {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .date-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .date-btn:hover {
+            border-color: var(--primary-color);
+        }
+
+        .date-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .main {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* 统计卡片 */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-icon.money {
+            background: #e6f7ff;
+            color: var(--primary-color);
+        }
+
+        .stat-icon.order {
+            background: #f6ffed;
+            color: var(--success-color);
+        }
+
+        .stat-icon.user {
+            background: #fff7e6;
+            color: var(--warning-color);
+        }
+
+        .stat-icon.rate {
+            background: #f9f0ff;
+            color: #722ed1;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .stat-trend {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .stat-trend.up {
+            color: var(--success-color);
+        }
+
+        .stat-trend.down {
+            color: var(--danger-color);
+        }
+
+        /* 图表区域 */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .chart-tabs {
+            display: flex;
+            gap: 16px;
+        }
+
+        .chart-tab {
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-secondary);
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .chart-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .chart-area {
+            height: 320px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-tertiary);
+            font-size: 14px;
+        }
+
+        /* 饼图区域 */
+        .pie-chart {
+            height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        .pie-placeholder {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #40a9ff 50%, #69c0ff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+        }
+
+        .pie-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.wechat { background: #52c41a; }
+        .legend-dot.alipay { background: #1890ff; }
+        .legend-dot.card { background: #faad14; }
+        .legend-dot.balance { background: #722ed1; }
+
+        .legend-text {
+            font-size: 14px;
+        }
+
+        .legend-value {
+            font-weight: 600;
+            margin-left: auto;
+        }
+
+        /* 排行榜 */
+        .ranking-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .ranking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .ranking-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .ranking-tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .ranking-tab {
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            background: var(--bg-color);
+            transition: all 0.3s;
+        }
+
+        .ranking-tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .ranking-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .ranking-item:last-child {
+            border-bottom: none;
+        }
+
+        .ranking-position {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .ranking-position.gold {
+            background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%);
+            color: white;
+        }
+
+        .ranking-position.silver {
+            background: linear-gradient(135deg, #c0c0c0 0%, #a0a0a0 100%);
+            color: white;
+        }
+
+        .ranking-position.bronze {
+            background: linear-gradient(135deg, #cd7f32 0%, #a66829 100%);
+            color: white;
+        }
+
+        .ranking-position.normal {
+            background: var(--bg-color);
+            color: var(--text-secondary);
+        }
+
+        .ranking-product {
+            flex: 1;
+        }
+
+        .ranking-product-name {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .ranking-product-count {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .ranking-amount {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--success-color);
+        }
+
+        /* 底部统计 */
+        .bottom-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .bottom-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .bottom-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .bottom-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .bottom-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .bottom-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--bg-color);
+            border-radius: 8px;
+        }
+
+        .bottom-item-label {
+            font-size: 14px;
+        }
+
+        .bottom-item-value {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Toast提示 -->
+        <div class="toast" id="toast"></div>
+
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>支付系统</span>
+                </div>
+                <div class="sidebar-subtitle">商户管理平台</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-item" onclick="window.location.href='merchant-home.html'">
+                    <i class="fas fa-home"></i>
+                    <span>首页</span>
+                </div>
+                <div class="nav-item" onclick="showPage('register')">
+                    <i class="fas fa-user-plus"></i>
+                    <span>商户入驻</span>
+                </div>
+                <div class="nav-item active">
+                    <i class="fas fa-chart-line"></i>
+                    <span>数据看板</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='merchant-transactions.html'">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>交易订单</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='merchant-settlement.html'">
+                    <i class="fas fa-wallet"></i>
+                    <span>结算管理</span>
+                </div>
+                <div class="nav-item" onclick="showPage('settings')">
+                    <i class="fas fa-cog"></i>
+                    <span>账户设置</span>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="merchant-info">
+                    <div class="merchant-avatar">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="merchant-detail">
+                        <div class="merchant-name">星巴克XX店</div>
+                        <div class="merchant-status">已入驻</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <div class="main-wrapper">
+            <header class="header">
+                <h1 class="header-title">数据看板</h1>
+                <div class="header-actions">
+                    <div class="date-selector">
+                        <button class="date-btn" onclick="switchDate(this)">今日</button>
+                        <button class="date-btn active" onclick="switchDate(this)">本周</button>
+                        <button class="date-btn" onclick="switchDate(this)">本月</button>
+                        <button class="date-btn" onclick="switchDate(this)">本年</button>
+                    </div>
+                    <button class="btn btn-primary" onclick="showToast('导出数据')">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                </div>
+            </header>
+
+            <main class="main">
+                <!-- 统计卡片 -->
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-icon money">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">¥892,560</div>
+                            <div class="stat-label">本周交易金额</div>
+                            <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 较上周 +15.8%</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon order">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">8,956</div>
+                            <div class="stat-label">本周订单数</div>
+                            <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 较上周 +12.3%</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon user">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">5,680</div>
+                            <div class="stat-label">本周付款用户</div>
+                            <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 较上周 +8.5%</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon rate">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">¥99.56</div>
+                            <div class="stat-label">客单价</div>
+                            <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 较上周 +3.2%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 图表区域 -->
+                <div class="charts-row">
+                    <!-- 交易趋势 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">交易趋势</div>
+                            <div class="chart-tabs">
+                                <div class="chart-tab active" onclick="switchChart(this, 'amount')">交易金额</div>
+                                <div class="chart-tab" onclick="switchChart(this, 'order')">订单数</div>
+                                <div class="chart-tab" onclick="switchChart(this, 'user')">用户数</div>
+                            </div>
+                        </div>
+                        <div class="chart-area">
+                            <i class="fas fa-chart-line" style="font-size: 48px; margin-right: 12px;"></i>
+                            交易金额趋势图（折线图）
+                        </div>
+                    </div>
+
+                    <!-- 支付方式分布 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">支付方式分布</div>
+                        </div>
+                        <div class="pie-chart">
+                            <div class="pie-placeholder">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <div class="pie-legend">
+                                <div class="legend-item">
+                                    <div class="legend-dot wechat"></div>
+                                    <div class="legend-text">微信支付</div>
+                                    <div class="legend-value">¥356,800</div>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-dot alipay"></div>
+                                    <div class="legend-text">支付宝</div>
+                                    <div class="legend-value">¥267,900</div>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-dot card"></div>
+                                    <div class="legend-text">银行卡</div>
+                                    <div class="legend-value">¥178,560</div>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-dot balance"></div>
+                                    <div class="legend-text">账户余额</div>
+                                    <div class="legend-value">¥89,300</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 排行榜 -->
+                <div class="ranking-card">
+                    <div class="ranking-header">
+                        <div class="ranking-title">商品销售排行</div>
+                        <div class="ranking-tabs">
+                            <div class="ranking-tab active" onclick="switchRanking(this, 'sales')">销量</div>
+                            <div class="ranking-tab" onclick="switchRanking(this, 'amount')">销售额</div>
+                        </div>
+                    </div>
+                    <div class="ranking-list">
+                        <div class="ranking-item">
+                            <div class="ranking-position gold">1</div>
+                            <div class="ranking-product">
+                                <div class="ranking-product-name">美式咖啡（中杯）</div>
+                                <div class="ranking-product-count">销量 1,256 件</div>
+                            </div>
+                            <div class="ranking-amount">¥47,728</div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="ranking-position silver">2</div>
+                            <div class="ranking-product">
+                                <div class="ranking-product-name">拿铁咖啡（大杯）</div>
+                                <div class="ranking-product-count">销量 980 件</div>
+                            </div>
+                            <div class="ranking-amount">¥41,160</div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="ranking-position bronze">3</div>
+                            <div class="ranking-product">
+                                <div class="ranking-product-name">焦糖玛奇朵</div>
+                                <div class="ranking-product-count">销量 756 件</div>
+                            </div>
+                            <div class="ranking-amount">¥31,752</div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="ranking-position normal">4</div>
+                            <div class="ranking-product">
+                                <div class="ranking-product-name">星巴克月饼礼盒</div>
+                                <div class="ranking-product-count">销量 328 件</div>
+                            </div>
+                            <div class="ranking-amount">¥97,744</div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="ranking-position normal">5</div>
+                            <div class="ranking-product">
+                                <div class="ranking-product-name">星巴克星享卡充值</div>
+                                <div class="ranking-product-count">销量 256 件</div>
+                            </div>
+                            <div class="ranking-amount">¥128,000</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 底部统计 -->
+                <div class="bottom-stats">
+                    <!-- 时段分析 -->
+                    <div class="bottom-card">
+                        <div class="bottom-header">
+                            <div class="bottom-title">时段分析</div>
+                        </div>
+                        <div class="bottom-list">
+                            <div class="bottom-item">
+                                <div class="bottom-item-label">上午（6:00-12:00）</div>
+                                <div class="bottom-item-value" style="color: var(--warning-color);">¥178,560</div>
+                            </div>
+                            <div class="bottom-item">
+                                <div class="bottom-item-label">下午（12:00-18:00）</div>
+                                <div class="bottom-item-value" style="color: var(--primary-color);">¥356,800</div>
+                            </div>
+                            <div class="bottom-item">
+                                <div class="bottom-item-label">晚上（18:00-24:00）</div>
+                                <div class="bottom-item-value" style="color: var(--success-color);">¥357,200</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 退款统计 -->
+                    <div class="bottom-card">
+                        <div class="bottom-header">
+                            <div class="bottom-title">退款统计</div>
+                        </div>
+                        <div class="bottom-list">
+                            <div class="bottom-item">
+                                <div class="bottom-item-label">退款订单数</div>
+                                <div class="bottom-item-value" style="color: var(--danger-color);">126 笔</div>
+                            </div>
+                            <div class="bottom-item">
+                                <div class="bottom-item-label">退款金额</div>
+                                <div class="bottom-item-value" style="color: var(--danger-color);">¥8,956.00</div>
+                            </div>
+                            <div class="bottom-item">
+                                <div class="bottom-item-label">退款率</div>
+                                <div class="bottom-item-value" style="color: var(--success-color);">1.4%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function switchDate(btn) {
+            document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            showToast('切换时间范围');
+        }
+
+        function switchChart(tab, type) {
+            document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            showToast('切换到：' + type);
+        }
+
+        function switchRanking(tab, type) {
+            document.querySelectorAll('.ranking-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            showToast('切换到：' + type);
+        }
+    </script>
+</body>
+</html>
