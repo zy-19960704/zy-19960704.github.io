@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账户系统 - 安全中心</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1890ff;
+            --primary-hover: #40a9ff;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --danger-color: #ff4d4f;
+            --text-primary: #262626;
+            --text-secondary: #8c8c8c;
+            --text-tertiary: #bfbfbf;
+            --border-color: #e8e8e8;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #0050b3 100%);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-back {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .header-back:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        /* 主内容区 */
+        .main {
+            flex: 1;
+            padding: 20px;
+            max-width: 480px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* 安全等级 */
+        .security-level {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .security-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .security-score {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--success-color);
+            margin-bottom: 16px;
+        }
+
+        .security-bar {
+            height: 8px;
+            background: var(--bg-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .security-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-color) 0%, #52c41a 100%);
+            border-radius: 4px;
+            width: 80%;
+        }
+
+        .security-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* 安全项 */
+        .security-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .security-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .security-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .security-icon.password {
+            background: #e6f7ff;
+            color: var(--primary-color);
+        }
+
+        .security-icon.phone {
+            background: #f6ffed;
+            color: var(--success-color);
+        }
+
+        .security-icon.id {
+            background: #fff7e6;
+            color: var(--warning-color);
+        }
+
+        .security-icon.email {
+            background: #f9f0ff;
+            color: #722ed1;
+        }
+
+        .security-icon.login {
+            background: #fff1f0;
+            color: var(--danger-color);
+        }
+
+        .security-content {
+            flex: 1;
+        }
+
+        .security-name {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .security-status {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .security-status.success {
+            color: var(--success-color);
+        }
+
+        .security-status.warning {
+            color: var(--warning-color);
+        }
+
+        .security-arrow {
+            color: var(--text-tertiary);
+        }
+
+        /* 登录记录 */
+        .record-section {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .record-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .record-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .record-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .record-item:last-child {
+            border-bottom: none;
+        }
+
+        .record-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            background: #e6f7ff;
+            color: var(--primary-color);
+        }
+
+        .record-detail {
+            flex: 1;
+        }
+
+        .record-device {
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .record-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .record-status {
+            font-size: 12px;
+            color: var(--success-color);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Toast提示 -->
+        <div class="toast" id="toast"></div>
+
+        <!-- 头部 -->
+        <header class="header">
+            <div class="header-back" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+            </div>
+            <h1 class="header-title">安全中心</h1>
+        </header>
+
+        <!-- 主内容区 -->
+        <main class="main">
+            <!-- 安全等级 -->
+            <div class="security-level">
+                <div class="security-title">
+                    <i class="fas fa-shield-alt"></i>
+                    账户安全等级
+                </div>
+                <div class="security-score">高</div>
+                <div class="security-bar">
+                    <div class="security-bar-fill"></div>
+                </div>
+                <div class="security-desc">您的账户安全等级较高，请继续保持</div>
+            </div>
+
+            <!-- 安全设置 -->
+            <div class="security-item" onclick="showPassword()">
+                <div class="security-icon password">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <div class="security-content">
+                    <div class="security-name">登录密码</div>
+                    <div class="security-status success">已设置</div>
+                </div>
+                <div class="security-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+
+            <div class="security-item" onclick="showPayPassword()">
+                <div class="security-icon.password">
+                    <i class="fas fa-key"></i>
+                </div>
+                <div class="security-content">
+                    <div class="security-name">支付密码</div>
+                    <div class="security-status success">已设置</div>
+                </div>
+                <div class="security-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+
+            <div class="security-item" onclick="showPhone()">
+                <div class="security-icon phone">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <div class="security-content">
+                    <div class="security-name">绑定手机号</div>
+                    <div class="security-status success">138****8888</div>
+                </div>
+                <div class="security-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+
+            <div class="security-item" onclick="showIdentity()">
+                <div class="security-icon.id">
+                    <i class="fas fa-id-card"></i>
+                </div>
+                <div class="security-content">
+                    <div class="security-name">实名认证</div>
+                    <div class="security-status success">已认证</div>
+                </div>
+                <div class="security-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+
+            <div class="security-item" onclick="showEmail()">
+                <div class="security-icon.email">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="security-content">
+                    <div class="security-name">绑定邮箱</div>
+                    <div class="security-status warning">未设置</div>
+                </div>
+                <div class="security-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+
+            <div class="security-item" onclick="showLoginRecord()">
+                <div class="security-icon.login">
+                    <i class="fas fa-history"></i>
+                </div>
+                <div class="security-content">
+                    <div class="security-name">登录记录</div>
+                    <div class="security-status">查看历史登录</div>
+                </div>
+                <div class="security-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+
+            <!-- 登录记录 -->
+            <div class="record-section">
+                <div class="record-header">
+                    <span class="record-title">最近登录</span>
+                </div>
+                <div class="record-item">
+                    <div class="record-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="record-detail">
+                        <div class="record-device">iPhone 14 Pro</div>
+                        <div class="record-time">2026-05-22 15:30</div>
+                    </div>
+                    <div class="record-status">本机</div>
+                </div>
+                <div class="record-item">
+                    <div class="record-icon">
+                        <i class="fas fa-laptop"></i>
+                    </div>
+                    <div class="record-detail">
+                        <div class="record-device">Windows PC (Chrome)</div>
+                        <div class="record-time">2026-05-21 14:20</div>
+                    </div>
+                    <div class="record-status" style="color: var(--text-secondary);">信任设备</div>
+                </div>
+                <div class="record-item">
+                    <div class="record-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="record-detail">
+                        <div class="record-device">iPad Pro</div>
+                        <div class="record-time">2026-05-20 10:15</div>
+                    </div>
+                    <div class="record-status" style="color: var(--text-secondary);">信任设备</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function goBack() {
+            window.location.href = 'user-profile.html';
+        }
+
+        function showPassword() {
+            showToast('请输入原密码');
+        }
+
+        function showPayPassword() {
+            showToast('请验证身份');
+        }
+
+        function showPhone() {
+            showToast('请输入验证码');
+        }
+
+        function showIdentity() {
+            showToast('已完成实名认证');
+        }
+
+        function showEmail() {
+            showToast('请输入邮箱地址');
+        }
+
+        function showLoginRecord() {
+            showToast('查看完整登录记录');
+        }
+    </script>
+</body>
+</html>

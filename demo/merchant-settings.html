@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商户管理 - 账户设置</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1890ff;
+            --primary-hover: #40a9ff;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --danger-color: #ff4d4f;
+            --text-primary: #262626;
+            --text-secondary: #8c8c8c;
+            --text-tertiary: #bfbfbf;
+            --border-color: #e8e8e8;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .app {
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 240px;
+            background: linear-gradient(180deg, #001529 0%, #000c17 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-logo {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-logo i {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        .sidebar-subtitle {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.65);
+            margin-top: 4px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.65);
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item.active {
+            color: white;
+            background: rgba(24, 144, 255, 0.15);
+            border-left-color: var(--primary-color);
+        }
+
+        .nav-item i {
+            width: 18px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        /* 主内容区 */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: white;
+            padding: 0 24px;
+            height: 60px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .header-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .main {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* 内容布局 */
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: 20px;
+        }
+
+        /* 左侧菜单 */
+        .settings-menu {
+            background: white;
+            border-radius: 8px;
+            padding: 8px 0;
+        }
+
+        .settings-menu-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .settings-menu-item:hover {
+            background: var(--bg-color);
+        }
+
+        .settings-menu-item.active {
+            background: var(--bg-color);
+            border-left-color: var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* 右侧内容 */
+        .settings-content {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            max-width: 500px;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-input:disabled {
+            background: var(--bg-color);
+            cursor: not-allowed;
+        }
+
+        .form-select {
+            width: 100%;
+            max-width: 500px;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        /* 配置卡片 */
+        .config-card {
+            background: var(--bg-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .config-card-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .config-card-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        /* 账户信息 */
+        .account-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .account-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+        }
+
+        .account-detail {
+            flex: 1;
+        }
+
+        .account-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .account-id {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .account-status {
+            display: inline-flex;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        /* 安全项 */
+        .security-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .security-item:last-child {
+            border-bottom: none;
+        }
+
+        .security-item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .security-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #e6f7ff;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .security-title {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .security-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Toast提示 -->
+        <div class="toast" id="toast"></div>
+
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>支付系统</span>
+                </div>
+                <div class="sidebar-subtitle">商户管理平台</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-item" onclick="window.location.href='merchant-home.html'">
+                    <i class="fas fa-home"></i>
+                    <span>首页</span>
+                </div>
+                <div class="nav-item" onclick="showPage('register')">
+                    <i class="fas fa-user-plus"></i>
+                    <span>商户入驻</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='merchant-dashboard.html'">
+                    <i class="fas fa-chart-line"></i>
+                    <span>数据看板</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='merchant-transactions.html'">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>交易订单</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='merchant-settlement.html'">
+                    <i class="fas fa-wallet"></i>
+                    <span>结算管理</span>
+                </div>
+                <div class="nav-item active">
+                    <i class="fas fa-cog"></i>
+                    <span>账户设置</span>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 主内容区 -->
+        <div class="main-wrapper">
+            <header class="header">
+                <h1 class="header-title">账户设置</h1>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="saveSettings()">
+                        <i class="fas fa-save"></i> 保存设置
+                    </button>
+                </div>
+            </header>
+
+            <main class="main">
+                <div class="content-wrapper">
+                    <!-- 左侧菜单 -->
+                    <div class="settings-menu">
+                        <div class="settings-menu-item active" onclick="showSection('info')">
+                            <i class="fas fa-info-circle"></i>
+                            基本信息
+                        </div>
+                        <div class="settings-menu-item" onclick="showSection('security')">
+                            <i class="fas fa-lock"></i>
+                            安全设置
+                        </div>
+                        <div class="settings-menu-item" onclick="showSection('settle')">
+                            <i class="fas fa-university"></i>
+                            结算账户
+                        </div>
+                        <div class="settings-menu-item" onclick="showSection('notification')">
+                            <i class="fas fa-bell"></i>
+                            通知设置
+                        </div>
+                        <div class="settings-menu-item" onclick="showSection('team')">
+                            <i class="fas fa-users-cog"></i>
+                            成员管理
+                        </div>
+                        <div class="settings-menu-item" onclick="showSection('api')">
+                            <i class="fas fa-code"></i>
+                            API配置
+                        </div>
+                    </div>
+
+                    <!-- 右侧内容 -->
+                    <div class="settings-content">
+                        <!-- 基本信息 -->
+                        <div id="section-info">
+                            <div class="section-title">基本信息</div>
+
+                            <div class="account-info">
+                                <div class="account-avatar">
+                                    <i class="fas fa-store"></i>
+                                </div>
+                                <div class="account-detail">
+                                    <div class="account-name">星巴克XX店</div>
+                                    <div class="account-id">商户号：MER202605220001</div>
+                                    <div class="account-status">已认证</div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">企业名称</label>
+                                <input type="text" class="form-input" value="杭州星巴克咖啡有限公司XX店" disabled>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">统一社会信用代码</label>
+                                <input type="text" class="form-input" value="91330000XXXXXXXX" disabled>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">法人姓名</label>
+                                <input type="text" class="form-input" value="王XX" disabled>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">法人身份证号</label>
+                                <input type="text" class="form-input" value="330***********1234" disabled>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">联系人</label>
+                                <input type="text" class="form-input" value="张经理">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">联系电话</label>
+                                <input type="text" class="form-input" value="138****8888">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">联系邮箱</label>
+                                <input type="text" class="form-input" value="manager@starbucks.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">营业地址</label>
+                                <input type="text" class="form-input" value="杭州市西湖区文三路123号">
+                            </div>
+                        </div>
+
+                        <!-- 安全设置 -->
+                        <div id="section-security" style="display: none;">
+                            <div class="section-title">安全设置</div>
+
+                            <div class="config-card">
+                                <div class="config-card-title">
+                                    <i class="fas fa-key"></i>
+                                    登录密码
+                                </div>
+                                <div class="config-card-desc">保护您的账户安全，建议定期更换密码</div>
+                                <button class="btn btn-secondary" onclick="changePassword()">
+                                    修改密码
+                                </button>
+                            </div>
+
+                            <div class="config-card">
+                                <div class="config-card-title">
+                                    <i class="fas fa-phone"></i>
+                                    绑定手机号
+                                </div>
+                                <div class="config-card-desc">用于接收验证信息和安全通知</div>
+                                <div class="form-group">
+                                    <label class="form-label">手机号</label>
+                                    <div style="display: flex; gap: 12px; align-items: center;">
+                                        <input type="text" class="form-input" value="138****8888" style="flex: 1; margin-bottom: 0;">
+                                        <button class="btn btn-primary" onclick="changePhone()">
+                                            更换
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="config-card">
+                                <div class="config-card-title">
+                                    <i class="fas fa-user-lock"></i>
+                                    支付密码
+                                </div>
+                                <div class="config-card-desc">用于提现和修改安全设置</div>
+                                <button class="btn btn-secondary" onclick="changePayPassword()">
+                                    重置支付密码
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 结算账户 -->
+                        <div id="section-settle" style="display: none;">
+                            <div class="section-title">结算账户</div>
+
+                            <div class="config-card">
+                                <div class="config-card-title">
+                                    <i class="fas fa-university"></i>
+                                    对公结算账户
+                                </div>
+                                <div class="config-card-desc">您的结算资金将提现至以下账户</div>
+
+                                <div class="form-group">
+                                    <label class="form-label">开户行</label>
+                                    <input type="text" class="form-input" value="中国工商银行杭州XX支行" disabled>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">开户名</label>
+                                    <input type="text" class="form-input" value="杭州星巴克咖啡有限公司XX店" disabled>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">银行账号</label>
+                                    <input type="text" class="form-input" value="622****1234" disabled>
+                                </div>
+
+                                <div class="form-hint">如需修改结算账户，请联系客服</div>
+                            </div>
+                        </div>
+
+                        <!-- 通知设置 -->
+                        <div id="section-notification" style="display: none;">
+                            <div class="section-title">通知设置</div>
+
+                            <div class="security-item">
+                                <div class="security-item-left">
+                                    <div class="security-icon">
+                                        <i class="fas fa-comment-dots"></i>
+                                    </div>
+                                    <div>
+                                        <div class="security-title">交易通知</div>
+                                        <div class="security-desc">有新交易时发送通知</div>
+                                    </div>
+                                </div>
+                                <div class="toggle-wrapper">
+                                    <div class="toggle active" onclick="toggleSwitch(this)">
+                                        <div class="toggle-circle"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="security-item">
+                                <div class="security-item-left">
+                                    <div class="security-icon">
+                                        <i class="fas fa-wallet"></i>
+                                    </div>
+                                    <div>
+                                        <div class="security-title">结算通知</div>
+                                        <div class="security-desc">有结算到账时发送通知</div>
+                                    </div>
+                                </div>
+                                <div class="toggle-wrapper">
+                                    <div class="toggle active" onclick="toggleSwitch(this)">
+                                        <div class="toggle-circle"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="security-item">
+                                <div class="security-item-left">
+                                    <div class="security-icon">
+                                        <i class="fas fa-bell"></i>
+                                    </div>
+                                    <div>
+                                        <div class="security-title">系统公告</div>
+                                        <div class="security-desc">接收系统公告和通知</div>
+                                    </div>
+                                </div>
+                                <div class="toggle-wrapper">
+                                    <div class="toggle active" onclick="toggleSwitch(this)">
+                                        <div class="toggle-circle"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 成员管理 -->
+                        <div id="section-team" style="display: none;">
+                            <div class="section-title">成员管理</div>
+
+                            <div class="config-card">
+                                <div class="config-card-title">
+                                    <i class="fas fa-users"></i>
+                                    团队成员
+                                </div>
+                                <div class="config-card-desc">管理您的团队成员和权限</div>
+
+                                <div class="security-item">
+                                    <div class="security-item-left">
+                                        <div class="security-icon" style="background: #f6ffed; color: #52c41a;">
+                                            <i class="fas fa-user-tie"></i>
+                                        </div>
+                                        <div>
+                                            <div class="security-title">王经理（管理员）</div>
+                                            <div class="security-desc">拥有全部权限</div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">
+                                        编辑
+                                    </button>
+                                </div>
+
+                                <div class="security-item">
+                                    <div class="security-item-left">
+                                        <div class="security-icon" style="background: #e6f7ff; color: #1890ff;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div>
+                                            <div class="security-title">张财务（财务）</div>
+                                            <div class="security-desc">可查看交易和结算</div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">
+                                        编辑
+                                    </button>
+                                </div>
+
+                                <button class="btn btn-primary" style="margin-top: 16px;">
+                                    <i class="fas fa-plus"></i> 添加成员
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- API配置 -->
+                        <div id="section-api" style="display: none;">
+                            <div class="section-title">API配置</div>
+
+                            <div class="config-card">
+                                <div class="config-card-title">
+                                    <i class="fas fa-key"></i>
+                                    API密钥
+                                </div>
+                                <div class="config-card-desc">用于调用支付接口</div>
+
+                                <div class="form-group">
+                                    <label class="form-label">AppID</label>
+                                    <input type="text" class="form-input" value="202605220001" disabled>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">API Key</label>
+                                    <div style="display: flex; gap: 12px; align-items: center;">
+                                        <input type="text" class="form-input" value="sk-xxx-xxx-xxx-xxx" style="flex: 1; margin-bottom: 0;">
+                                        <button class="btn btn-secondary" onclick="regenerateKey()">
+                                            重新生成
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">回调地址</label>
+                                    <input type="text" class="form-input" value="https://www.starbucks.com/callback">
+                                </div>
+
+                                <div class="form-hint">请确保回调地址能正常访问</div>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="saveSettings()">
+                                <i class="fas fa-save"></i> 保存设置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function showPage(page) {
+            showToast('跳转到：' + page);
+        }
+
+        function showSection(section) {
+            document.querySelectorAll('[id^="section-"]').forEach(el => {
+                el.style.display = 'none';
+            });
+            document.getElementById('section-' + section).style.display = 'block';
+
+            document.querySelectorAll('.settings-menu-item').forEach(el => {
+                el.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function toggleSwitch(el) {
+            el.classList.toggle('active');
+        }
+
+        function saveSettings() {
+            showLoading();
+            setTimeout(() => {
+                hideLoading();
+                showToast('保存成功');
+            }, 1000);
+        }
+
+        function changePassword() {
+            showToast('请输入新密码');
+        }
+
+        function changePhone() {
+            showToast('请输入验证码');
+        }
+
+        function changePayPassword() {
+            showToast('请验证身份');
+        }
+
+        function regenerateKey() {
+            if (confirm('重新生成API Key会导致旧的Key失效，确定要继续吗？')) {
+                showToast('已重新生成');
+            }
+        }
+
+        function showLoading() {
+            const loading = document.createElement('div');
+            loading.id = 'loading';
+            loading.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1002;
+            `;
+            loading.innerHTML = `<div style="width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite;"></div>`;
+            document.body.appendChild(loading);
+
+            const style = document.createElement('style');
+            style.textContent = `@keyframes spin { to { transform: rotate(360deg); } }`;
+            document.head.appendChild(style);
+        }
+
+        function hideLoading() {
+            document.getElementById('loading')?.remove();
+        }
+    </script>
+</body>
+</html>
