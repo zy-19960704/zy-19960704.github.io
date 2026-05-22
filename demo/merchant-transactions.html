@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商户管理 - 交易订单</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1890ff;
+            --primary-hover: #40a9ff;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --danger-color: #ff4d4f;
+            --text-primary: #262626;
+            --text-secondary: #8c8c8c;
+            --text-tertiary: #bfbfbf;
+            --border-color: #e8e8e8;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .app {
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 240px;
+            background: linear-gradient(180deg, #001529 0%, #000c17 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-logo {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-logo i {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        .sidebar-subtitle {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.65);
+            margin-top: 4px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.65);
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item.active {
+            color: white;
+            background: rgba(24, 144, 255, 0.15);
+            border-left-color: var(--primary-color);
+        }
+
+        .nav-item i {
+            width: 18px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .merchant-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .merchant-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .merchant-detail {
+            flex: 1;
+        }
+
+        .merchant-name {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .merchant-status {
+            font-size: 12px;
+            color: var(--success-color);
+        }
+
+        /* 主内容区 */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: white;
+            padding: 0 24px;
+            height: 60px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .main {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* 统计卡片 */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-icon.total {
+            background: #e6f7ff;
+            color: var(--primary-color);
+        }
+
+        .stat-icon.success {
+            background: #f6ffed;
+            color: var(--success-color);
+        }
+
+        .stat-icon.refund {
+            background: #fff1f0;
+            color: var(--danger-color);
+        }
+
+        .stat-icon.pending {
+            background: #fff7e6;
+            color: var(--warning-color);
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* 搜索区域 */
+        .search-bar {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .search-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 120px;
+        }
+
+        /* 表格 */
+        .table-wrapper {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--bg-color);
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: var(--bg-color);
+        }
+
+        .order-no {
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .order-no:hover {
+            text-decoration: underline;
+        }
+
+        .amount-value {
+            font-weight: 600;
+            color: var(--danger-color);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .status-badge.success {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .status-badge.pending {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+
+        .status-badge.refunded {
+            background: #e6f7ff;
+            color: var(--primary-color);
+        }
+
+        .status-badge.closed {
+            background: #f5f5f5;
+            color: var(--text-secondary);
+        }
+
+        .action-btn {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            margin-right: 8px;
+        }
+
+        .action-btn.detail {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .action-btn.refund {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 20px;
+        }
+
+        .page-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .page-btn:hover:not(.active):not(:disabled) {
+            border-color: var(--primary-color);
+        }
+
+        .page-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 详情弹窗 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 24px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .detail-section {
+            margin-bottom: 24px;
+        }
+
+        .detail-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            font-weight: 500;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Toast提示 -->
+        <div class="toast" id="toast"></div>
+
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>支付系统</span>
+                </div>
+                <div class="sidebar-subtitle">商户管理平台</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-item" onclick="goDashboard()">
+                    <i class="fas fa-home"></i>
+                    <span>首页</span>
+                </div>
+                <div class="nav-item" onclick="showPage('register')">
+                    <i class="fas fa-user-plus"></i>
+                    <span>商户入驻</span>
+                </div>
+                <div class="nav-item" onclick="showPage('dashboard')">
+                    <i class="fas fa-chart-line"></i>
+                    <span>数据看板</span>
+                </div>
+                <div class="nav-item active">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>交易订单</span>
+                </div>
+                <div class="nav-item" onclick="showPage('settlement')">
+                    <i class="fas fa-wallet"></i>
+                    <span>结算管理</span>
+                </div>
+                <div class="nav-item" onclick="showPage('settings')">
+                    <i class="fas fa-cog"></i>
+                    <span>账户设置</span>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="merchant-info">
+                    <div class="merchant-avatar">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="merchant-detail">
+                        <div class="merchant-name">星巴克XX店</div>
+                        <div class="merchant-status">已入驻</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <div class="main-wrapper">
+            <header class="header">
+                <h1 class="header-title">交易订单</h1>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="exportData()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="btn btn-primary" onclick="refreshList()">
+                        <i class="fas fa-refresh"></i> 刷新
+                    </button>
+                </div>
+            </header>
+
+            <main class="main">
+                <!-- 统计卡片 -->
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-icon total">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">¥125,680</div>
+                            <div class="stat-label">今日交易金额</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">¥123,450</div>
+                            <div class="stat-label">已结算</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon pending">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">¥2,230</div>
+                            <div class="stat-label">待结算</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon refund">
+                            <i class="fas fa-undo"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">¥580</div>
+                            <div class="stat-label">退款金额</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 搜索区域 -->
+                <div class="search-bar">
+                    <div class="search-group">
+                        <span class="search-label">订单号：</span>
+                        <input type="text" class="search-input" placeholder="请输入订单号" id="searchOrderNo">
+                    </div>
+                    <div class="search-group">
+                        <span class="search-label">交易状态：</span>
+                        <select class="search-select" id="searchStatus">
+                            <option value="">全部</option>
+                            <option value="success">交易成功</option>
+                            <option value="pending">处理中</option>
+                            <option value="refunded">已退款</option>
+                            <option value="closed">已关闭</option>
+                        </select>
+                    </div>
+                    <div class="search-group">
+                        <span class="search-label">日期范围：</span>
+                        <input type="date" class="search-input" id="searchDateStart">
+                        <span>-</span>
+                        <input type="date" class="search-input" id="searchDateEnd">
+                    </div>
+                    <button class="btn btn-primary" onclick="search()">
+                        <i class="fas fa-search"></i> 查询
+                    </button>
+                </div>
+
+                <!-- 表格 -->
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>订单号</th>
+                                <th>交易时间</th>
+                                <th>支付方式</th>
+                                <th>商品描述</th>
+                                <th>交易金额</th>
+                                <th>实际结算</th>
+                                <th>手续费</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="order-no" onclick="showDetail('ORD202605221001')">ORD202605221001</span></td>
+                                <td>2026-05-22 14:30:25</td>
+                                <td>微信支付</td>
+                                <td>美式咖啡（大杯）x1</td>
+                                <td class="amount-value">¥38.00</td>
+                                <td>¥37.62</td>
+                                <td>¥0.38</td>
+                                <td><span class="status-badge success">交易成功</span></td>
+                                <td>
+                                    <button class="action-btn detail" onclick="showDetail('ORD202605221001')">详情</button>
+                                    <button class="action-btn refund" onclick="refund('ORD202605221001')">退款</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="order-no" onclick="showDetail('ORD202605221002')">ORD202605221002</span></td>
+                                <td>2026-05-22 13:15:42</td>
+                                <td>支付宝</td>
+                                <td>拿铁咖啡（中杯）x2</td>
+                                <td class="amount-value">¥56.00</td>
+                                <td>¥55.34</td>
+                                <td>¥0.66</td>
+                                <td><span class="status-badge success">交易成功</span></td>
+                                <td>
+                                    <button class="action-btn detail" onclick="showDetail('ORD202605221002')">详情</button>
+                                    <button class="action-btn refund" onclick="refund('ORD202605221002')">退款</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="order-no" onclick="showDetail('ORD202605221003')">ORD202605221003</span></td>
+                                <td>2026-05-22 12:00:15</td>
+                                <td>账户余额</td>
+                                <td>星巴克月饼礼盒</td>
+                                <td class="amount-value">¥298.00</td>
+                                <td>¥294.03</td>
+                                <td>¥3.97</td>
+                                <td><span class="status-badge success">交易成功</span></td>
+                                <td>
+                                    <button class="action-btn detail" onclick="showDetail('ORD202605221003')">详情</button>
+                                    <button class="action-btn refund" onclick="refund('ORD202605221003')">退款</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="order-no" onclick="showDetail('ORD202605220004')">ORD202605220004</span></td>
+                                <td>2026-05-22 10:30:00</td>
+                                <td>微信支付</td>
+                                <td>焦糖玛奇朵</td>
+                                <td class="amount-value">¥42.00</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td><span class="status-badge pending">处理中</span></td>
+                                <td>
+                                    <button class="action-btn detail" onclick="showDetail('ORD202605220004')">详情</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="order-no" onclick="showDetail('ORD202605210005')">ORD202605210005</span></td>
+                                <td>2026-05-21 18:45:30</td>
+                                <td>支付宝</td>
+                                <td>星巴克星享卡充值</td>
+                                <td class="amount-value">¥500.00</td>
+                                <td>¥493.50</td>
+                                <td>¥6.50</td>
+                                <td><span class="status-badge refunded">已退款</span></td>
+                                <td>
+                                    <button class="action-btn detail" onclick="showDetail('ORD202605210005')">详情</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="order-no" onclick="showDetail('ORD202605210006')">ORD202605210006</span></td>
+                                <td>2026-05-21 16:20:00</td>
+                                <td>微信支付</td>
+                                <td>抹茶拿铁</td>
+                                <td class="amount-value">¥35.00</td>
+                                <td>¥34.55</td>
+                                <td>¥0.45</td>
+                                <td><span class="status-badge success">交易成功</span></td>
+                                <td>
+                                    <button class="action-btn detail" onclick="showDetail('ORD202605210006')">详情</button>
+                                    <button class="action-btn refund" onclick="refund('ORD202605210006')">退款</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分页 -->
+                <div class="pagination">
+                    <button class="page-btn" disabled>
+                        <i class="fas fa-angle-left"></i>
+                    </button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <button class="page-btn">4</button>
+                    <button class="page-btn">5</button>
+                    <button class="page-btn">
+                        <i class="fas fa-angle-right"></i>
+                    </button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">订单详情</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-section">
+                    <div class="detail-section-title">基本信息</div>
+                    <div class="detail-row">
+                        <span class="detail-label">订单号</span>
+                        <span class="detail-value">ORD202605221001</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">交易时间</span>
+                        <span class="detail-value">2026-05-22 14:30:25</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">支付方式</span>
+                        <span class="detail-value">微信支付</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">订单状态</span>
+                        <span class="detail-value"><span class="status-badge success">交易成功</span></span>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">商品信息</div>
+                    <div class="detail-row">
+                        <span class="detail-label">商品描述</span>
+                        <span class="detail-value">美式咖啡（大杯）x1</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">买家账号</span>
+                        <span class="detail-value">138****8888</span>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">金额信息</div>
+                    <div class="detail-row">
+                        <span class="detail-label">交易金额</span>
+                        <span class="detail-value" style="color: var(--danger-color); font-weight: 600;">¥38.00</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">手续费率</span>
+                        <span class="detail-value">1.0%</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">手续费</span>
+                        <span class="detail-value">¥0.38</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">实际结算</span>
+                        <span class="detail-value" style="color: var(--success-color); font-weight: 600;">¥37.62</span>
+                    </div>
+                </div>
+
+                <div style="padding-top: 20px; border-top: 1px solid var(--border-color);">
+                    <button class="btn btn-secondary" onclick="closeModal()" style="width: 100%;">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function goDashboard() {
+            showToast('返回商户首页');
+        }
+
+        function showPage(page) {
+            showToast('跳转到：' + page);
+        }
+
+        function exportData() {
+            showToast('导出成功');
+        }
+
+        function refreshList() {
+            showToast('已刷新');
+        }
+
+        function search() {
+            showToast('查询成功');
+        }
+
+        function showDetail(orderNo) {
+            document.getElementById('detailModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('show');
+        }
+
+        function refund(orderNo) {
+            if (confirm('确定要退款此订单吗？')) {
+                showToast('退款成功');
+            }
+        }
+
+        document.getElementById('detailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账户系统 - 个人中心</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1890ff;
+            --primary-hover: #40a9ff;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --danger-color: #ff4d4f;
+            --text-primary: #262626;
+            --text-secondary: #8c8c8c;
+            --text-tertiary: #bfbfbf;
+            --border-color: #e8e8e8;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #0050b3 100%);
+            color: white;
+            padding: 20px;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .header-back {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .header-back:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .user-id {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* 主内容区 */
+        .main {
+            flex: 1;
+            padding: 20px;
+            max-width: 480px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* 账户卡片 */
+        .account-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .account-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .account-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .account-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .account-badge.verified {
+            background: #f6ffed;
+            color: var(--success-color);
+        }
+
+        .account-badge.unverified {
+            background: #fff7e6;
+            color: var(--warning-color);
+        }
+
+        .account-balance {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .account-details {
+            display: flex;
+            gap: 24px;
+        }
+
+        .account-detail {
+            flex: 1;
+        }
+
+        .account-detail-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .account-detail-value {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* 认证卡片 */
+        .auth-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .auth-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .auth-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .auth-icon {
+            color: var(--success-color);
+        }
+
+        .auth-status {
+            font-size: 12px;
+            color: var(--success-color);
+        }
+
+        .auth-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .auth-item {
+            padding: 12px;
+            background: var(--bg-color);
+            border-radius: 8px;
+        }
+
+        .auth-item-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .auth-item-value {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* 功能列表 */
+        .feature-section {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .feature-item:last-child {
+            border-bottom: none;
+        }
+
+        .feature-item:hover {
+            background: var(--bg-color);
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .feature-icon.blue { background: #e6f7ff; color: var(--primary-color); }
+        .feature-icon.green { background: #f6ffed; color: var(--success-color); }
+        .feature-icon.orange { background: #fff7e6; color: var(--warning-color); }
+        .feature-icon.red { background: #fff1f0; color: var(--danger-color); }
+        .feature-icon.purple { background: #f9f0ff; color: #722ed1; }
+        .feature-icon.gray { background: #f5f5f5; color: var(--text-secondary); }
+
+        .feature-content {
+            flex: 1;
+        }
+
+        .feature-name {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .feature-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .feature-arrow {
+            color: var(--text-tertiary);
+        }
+
+        /* 安全等级 */
+        .security-level {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .security-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .security-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .security-score {
+            font-size: 14px;
+            color: var(--success-color);
+        }
+
+        .security-bar {
+            height: 8px;
+            background: var(--bg-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .security-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-color) 0%, #52c41a 100%);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .security-items {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .security-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 8px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .security-item:hover {
+            background: #e6f7ff;
+        }
+
+        .security-item.active {
+            background: #f6ffed;
+        }
+
+        .security-item-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            background: var(--text-tertiary);
+            color: white;
+            font-size: 14px;
+        }
+
+        .security-item.active .security-item-icon {
+            background: var(--success-color);
+        }
+
+        .security-item-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* 退出按钮 */
+        .logout-btn {
+            width: 100%;
+            padding: 14px;
+            background: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--danger-color);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .logout-btn:hover {
+            background: #fff1f0;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Toast提示 -->
+        <div class="toast" id="toast"></div>
+
+        <!-- 头部 -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-back" onclick="goBack()">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+                <div class="header-title">个人中心</div>
+            </div>
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-info">
+                    <div class="user-name">张三</div>
+                    <div class="user-id">ID: 138****8888</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主内容区 -->
+        <main class="main">
+            <!-- 账户卡片 -->
+            <div class="account-card">
+                <div class="account-header">
+                    <span class="account-title">账户余额</span>
+                    <span class="account-badge verified">已实名认证</span>
+                </div>
+                <div class="account-balance">¥8,888.88</div>
+                <div class="account-details">
+                    <div class="account-detail">
+                        <div class="account-detail-label">可用余额</div>
+                        <div class="account-detail-value">¥8,500.00</div>
+                    </div>
+                    <div class="account-detail">
+                        <div class="account-detail-label">冻结金额</div>
+                        <div class="account-detail-value">¥388.88</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 实名认证卡片 -->
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="auth-title">
+                        <i class="fas fa-id-card auth-icon"></i>
+                        实名认证信息
+                    </div>
+                    <span class="auth-status">已认证</span>
+                </div>
+                <div class="auth-info">
+                    <div class="auth-item">
+                        <div class="auth-item-label">真实姓名</div>
+                        <div class="auth-item-value">张三</div>
+                    </div>
+                    <div class="auth-item">
+                        <div class="auth-item-label">身份证号</div>
+                        <div class="auth-item-value">330***********1234</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 安全等级 -->
+            <div class="security-level">
+                <div class="security-header">
+                    <span class="security-title">账户安全</span>
+                    <span class="security-score">安全等级：良好</span>
+                </div>
+                <div class="security-bar">
+                    <div class="security-bar-fill" style="width: 80%;"></div>
+                </div>
+                <div class="security-items">
+                    <div class="security-item active" onclick="showSecurityDetail('password')">
+                        <div class="security-item-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="security-item-label">支付密码</div>
+                    </div>
+                    <div class="security-item active" onclick="showSecurityDetail('phone')">
+                        <div class="security-item-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div class="security-item-label">手机绑定</div>
+                    </div>
+                    <div class="security-item" onclick="showSecurityDetail('fingerprint')">
+                        <div class="security-item-icon">
+                            <i class="fas fa-fingerprint"></i>
+                        </div>
+                        <div class="security-item-label">指纹支付</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能列表 -->
+            <div class="feature-section">
+                <div class="feature-item" onclick="goToBankCards()">
+                    <div class="feature-icon blue">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="feature-content">
+                        <div class="feature-name">银行卡管理</div>
+                        <div class="feature-desc">已绑定2张银行卡</div>
+                    </div>
+                    <div class="feature-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="feature-item" onclick="showSecurity()">
+                    <div class="feature-icon green">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="feature-content">
+                        <div class="feature-name">安全中心</div>
+                        <div class="feature-desc">支付密码、指纹等</div>
+                    </div>
+                    <div class="feature-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="feature-item" onclick="showMessages()">
+                    <div class="feature-icon orange">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="feature-content">
+                        <div class="feature-name">消息通知</div>
+                        <div class="feature-desc">3条未读消息</div>
+                    </div>
+                    <div class="feature-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="feature-item" onclick="showHelp()">
+                    <div class="feature-icon purple">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <div class="feature-content">
+                        <div class="feature-name">帮助与客服</div>
+                        <div class="feature-desc">常见问题、联系客服</div>
+                    </div>
+                    <div class="feature-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="feature-item" onclick="showAbout()">
+                    <div class="feature-icon gray">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="feature-content">
+                        <div class="feature-name">关于我们</div>
+                        <div class="feature-desc">版本信息 1.0.0</div>
+                    </div>
+                    <div class="feature-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 退出登录 -->
+            <button class="logout-btn" onclick="logout()">
+                退出登录
+            </button>
+        </main>
+    </div>
+
+    <script>
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function goBack() {
+            window.location.href = 'user-home.html';
+        }
+
+        function goToBankCards() {
+            window.location.href = 'bank-cards.html';
+        }
+
+        function showSecurityDetail(type) {
+            if (type === 'password') {
+                showToast('修改支付密码');
+            } else if (type === 'phone') {
+                showToast('更换手机号');
+            } else if (type === 'fingerprint') {
+                showToast('设置指纹支付');
+            }
+        }
+
+        function showSecurity() {
+            showToast('安全中心');
+        }
+
+        function showMessages() {
+            showToast('消息通知');
+        }
+
+        function showHelp() {
+            showToast('帮助与客服');
+        }
+
+        function showAbout() {
+            showToast('关于我们');
+        }
+
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                showToast('已退出登录');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            }
+        }
+    </script>
+</body>
+</html>

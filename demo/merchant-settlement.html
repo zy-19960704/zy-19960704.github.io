@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商户管理 - 结算管理</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1890ff;
+            --primary-hover: #40a9ff;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --danger-color: #ff4d4f;
+            --text-primary: #262626;
+            --text-secondary: #8c8c8c;
+            --text-tertiary: #bfbfbf;
+            --border-color: #e8e8e8;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .app {
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 240px;
+            background: linear-gradient(180deg, #001529 0%, #000c17 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-logo {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-logo i {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        .sidebar-subtitle {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.65);
+            margin-top: 4px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.65);
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item.active {
+            color: white;
+            background: rgba(24, 144, 255, 0.15);
+            border-left-color: var(--primary-color);
+        }
+
+        .nav-item i {
+            width: 18px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .merchant-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .merchant-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .merchant-detail {
+            flex: 1;
+        }
+
+        .merchant-name {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .merchant-status {
+            font-size: 12px;
+            color: var(--success-color);
+        }
+
+        /* 主内容区 */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: white;
+            padding: 0 24px;
+            height: 60px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #389e0d;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .main {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* 结算卡片 */
+        .settle-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .settle-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .settle-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .settle-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .settle-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .settle-icon.pending {
+            background: #fff7e6;
+            color: var(--warning-color);
+        }
+
+        .settle-icon.settling {
+            background: #e6f7ff;
+            color: var(--primary-color);
+        }
+
+        .settle-icon.available {
+            background: #f6ffed;
+            color: var(--success-color);
+        }
+
+        .settle-amount {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .settle-amount.pending {
+            color: var(--warning-color);
+        }
+
+        .settle-amount.settling {
+            color: var(--primary-color);
+        }
+
+        .settle-amount.available {
+            color: var(--success-color);
+        }
+
+        .settle-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* 申请结算卡片 */
+        .apply-card {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #0050b3 100%);
+            border-radius: 12px;
+            padding: 24px;
+            color: white;
+            margin-bottom: 24px;
+        }
+
+        .apply-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .apply-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .apply-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .apply-amount {
+            font-size: 36px;
+            font-weight: 700;
+        }
+
+        .apply-btn {
+            padding: 12px 24px;
+            background: white;
+            color: var(--primary-color);
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .apply-btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .apply-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 结算记录 */
+        .record-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 16px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .tab-item {
+            padding: 12px 0;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-item.active {
+            border-bottom-color: var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .record-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .record-item {
+            padding: 16px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .record-info {
+            flex: 1;
+        }
+
+        .record-no {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .record-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .record-amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--success-color);
+            margin-right: 16px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .status-badge.settled {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .status-badge.processing {
+            background: #e6f7ff;
+            color: var(--primary-color);
+        }
+
+        .status-badge.pending {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+
+        .status-badge.rejected {
+            background: #fff1f0;
+            color: #ff4d4f;
+        }
+
+        /* 申请弹窗 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .apply-info {
+            background: var(--bg-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .apply-info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+
+        .apply-info-row:last-child {
+            border-top: 1px solid var(--border-color);
+            margin-top: 8px;
+            padding-top: 16px;
+            font-weight: 600;
+        }
+
+        .btn-block {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Toast提示 -->
+        <div class="toast" id="toast"></div>
+
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>支付系统</span>
+                </div>
+                <div class="sidebar-subtitle">商户管理平台</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-item" onclick="goDashboard()">
+                    <i class="fas fa-home"></i>
+                    <span>首页</span>
+                </div>
+                <div class="nav-item" onclick="showPage('register')">
+                    <i class="fas fa-user-plus"></i>
+                    <span>商户入驻</span>
+                </div>
+                <div class="nav-item" onclick="showPage('dashboard')">
+                    <i class="fas fa-chart-line"></i>
+                    <span>数据看板</span>
+                </div>
+                <div class="nav-item" onclick="showPage('transactions')">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>交易订单</span>
+                </div>
+                <div class="nav-item active">
+                    <i class="fas fa-wallet"></i>
+                    <span>结算管理</span>
+                </div>
+                <div class="nav-item" onclick="showPage('settings')">
+                    <i class="fas fa-cog"></i>
+                    <span>账户设置</span>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="merchant-info">
+                    <div class="merchant-avatar">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="merchant-detail">
+                        <div class="merchant-name">星巴克XX店</div>
+                        <div class="merchant-status">已入驻</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <div class="main-wrapper">
+            <header class="header">
+                <h1 class="header-title">结算管理</h1>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="showToast('导出结算记录')">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                </div>
+            </header>
+
+            <main class="main">
+                <!-- 结算卡片 -->
+                <div class="settle-cards">
+                    <div class="settle-card">
+                        <div class="settle-header">
+                            <span class="settle-label">待结算金额</span>
+                            <div class="settle-icon pending">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
+                        <div class="settle-amount pending">¥2,230.00</div>
+                        <div class="settle-desc">预计 T+1 结算</div>
+                    </div>
+                    <div class="settle-card">
+                        <div class="settle-header">
+                            <span class="settle-label">结算中金额</span>
+                            <div class="settle-icon settling">
+                                <i class="fas fa-sync-alt"></i>
+                            </div>
+                        </div>
+                        <div class="settle-amount settling">¥5,000.00</div>
+                        <div class="settle-desc">银行处理中</div>
+                    </div>
+                    <div class="settle-card">
+                        <div class="settle-header">
+                            <span class="settle-label">可结算金额</span>
+                            <div class="settle-icon available">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                        <div class="settle-amount available">¥15,680.00</div>
+                        <div class="settle-desc">可立即申请提现</div>
+                    </div>
+                </div>
+
+                <!-- 申请结算 -->
+                <div class="apply-card">
+                    <div class="apply-header">
+                        <div class="apply-title">立即申请结算</div>
+                    </div>
+                    <div class="apply-content">
+                        <div>
+                            <div style="opacity: 0.8; margin-bottom: 4px;">可结算金额</div>
+                            <div class="apply-amount">¥15,680.00</div>
+                        </div>
+                        <button class="apply-btn" onclick="showApplyModal()">
+                            申请结算
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 结算记录 -->
+                <div class="record-section">
+                    <div class="section-header">
+                        <div class="section-title">结算记录</div>
+                    </div>
+
+                    <div class="tab-nav">
+                        <div class="tab-item active" onclick="switchTab(this, 'all')">全部</div>
+                        <div class="tab-item" onclick="switchTab(this, 'settled')">已结算</div>
+                        <div class="tab-item" onclick="switchTab(this, 'processing')">处理中</div>
+                        <div class="tab-item" onclick="switchTab(this, 'pending')">待审核</div>
+                    </div>
+
+                    <div class="record-list">
+                        <div class="record-item">
+                            <div class="record-info">
+                                <div class="record-no">STL202605210001</div>
+                                <div class="record-time">2026-05-21 15:30:00</div>
+                            </div>
+                            <div class="record-amount">+¥12,500.00</div>
+                            <span class="status-badge processing">处理中</span>
+                        </div>
+
+                        <div class="record-item">
+                            <div class="record-info">
+                                <div class="record-no">STL202605180001</div>
+                                <div class="record-time">2026-05-18 10:00:00</div>
+                            </div>
+                            <div class="record-amount">+¥18,230.00</div>
+                            <span class="status-badge settled">已到账</span>
+                        </div>
+
+                        <div class="record-item">
+                            <div class="record-info">
+                                <div class="record-no">STL202605150001</div>
+                                <div class="record-time">2026-05-15 14:20:00</div>
+                            </div>
+                            <div class="record-amount">+¥15,680.00</div>
+                            <span class="status-badge settled">已到账</span>
+                        </div>
+
+                        <div class="record-item">
+                            <div class="record-info">
+                                <div class="record-no">STL202605120001</div>
+                                <div class="record-time">2026-05-12 09:15:00</div>
+                            </div>
+                            <div class="record-amount">+¥22,450.00</div>
+                            <span class="status-badge settled">已到账</span>
+                        </div>
+
+                        <div class="record-item">
+                            <div class="record-info">
+                                <div class="record-no">STL202605100001</div>
+                                <div class="record-time">2026-05-10 11:30:00</div>
+                            </div>
+                            <div class="record-amount">+¥8,900.00</div>
+                            <span class="status-badge settled">已到账</span>
+                        </div>
+
+                        <div class="record-item">
+                            <div class="record-info">
+                                <div class="record-no">STL202605080001</div>
+                                <div class="record-time">2026-05-08 16:45:00</div>
+                            </div>
+                            <div class="record-amount">+¥12,300.00</div>
+                            <span class="status-badge settled">已到账</span>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 申请结算弹窗 -->
+    <div class="modal" id="applyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">申请结算</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="apply-info">
+                    <div class="apply-info-row">
+                        <span>结算账户</span>
+                        <span>中国工商银行 ****6789</span>
+                    </div>
+                    <div class="apply-info-row">
+                        <span>账户名称</span>
+                        <span>星巴克XX店</span>
+                    </div>
+                    <div class="apply-info-row">
+                        <span>结算金额</span>
+                        <span style="color: var(--success-color); font-size: 18px;">¥15,680.00</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">实际到账金额</label>
+                    <div style="font-size: 28px; font-weight: 700; color: var(--success-color);">
+                        ¥15,680.00
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                        结算手续费：¥0.00（T+1结算免手续费）
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">到账时间</label>
+                    <div style="padding: 12px; background: var(--bg-color); border-radius: 8px; font-size: 14px;">
+                        预计 2026-05-23 24:00 前到账<br>
+                        <span style="color: var(--text-secondary);">具体到账时间以银行处理为准</span>
+                    </div>
+                </div>
+
+                <button class="btn-block btn-primary" onclick="submitApply()">
+                    确认提交
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function goDashboard() {
+            showToast('返回商户首页');
+        }
+
+        function showPage(page) {
+            if (page === 'transactions') {
+                window.location.href = 'merchant-transactions.html';
+            } else {
+                showToast('跳转到：' + page);
+            }
+        }
+
+        function switchTab(element, type) {
+            document.querySelectorAll('.tab-item').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            element.classList.add('active');
+            showToast('筛选：' + element.textContent);
+        }
+
+        function showApplyModal() {
+            document.getElementById('applyModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('applyModal').classList.remove('show');
+        }
+
+        function submitApply() {
+            closeModal();
+            showToast('结算申请已提交');
+        }
+
+        document.getElementById('applyModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

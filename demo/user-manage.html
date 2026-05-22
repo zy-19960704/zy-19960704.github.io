@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>运营管理 - 用户管理</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1890ff;
+            --primary-hover: #40a9ff;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --danger-color: #ff4d4f;
+            --text-primary: #262626;
+            --text-secondary: #8c8c8c;
+            --text-tertiary: #bfbfbf;
+            --border-color: #e8e8e8;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .app {
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 220px;
+            background: linear-gradient(180deg, #001529 0%, #000c17 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-logo {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-logo i {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 0;
+            overflow-y: auto;
+        }
+
+        .nav-group-title {
+            padding: 8px 20px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.45);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.65);
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item.active {
+            color: white;
+            background: rgba(24, 144, 255, 0.15);
+            border-left-color: var(--primary-color);
+        }
+
+        .nav-item i {
+            width: 18px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .nav-badge {
+            position: absolute;
+            right: 16px;
+            background: var(--danger-color);
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        /* 主内容区 */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: white;
+            padding: 0 24px;
+            height: 60px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .page-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .main {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* 统计卡片 */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-icon.total {
+            background: #e6f7ff;
+            color: var(--primary-color);
+        }
+
+        .stat-icon.auth {
+            background: #f6ffed;
+            color: var(--success-color);
+        }
+
+        .stat-icon.frozen {
+            background: #fff7e6;
+            color: var(--warning-color);
+        }
+
+        .stat-icon.active {
+            background: #f9f0ff;
+            color: #722ed1;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* 搜索区域 */
+        .search-bar {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .search-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 120px;
+        }
+
+        /* 表格 */
+        .table-wrapper {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--bg-color);
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: var(--bg-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .user-detail {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .user-phone {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .auth-badge {
+            display: inline-flex;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .auth-badge.verified {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .auth-badge.unverified {
+            background: #f5f5f5;
+            color: var(--text-secondary);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .status-badge.normal {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .status-badge.frozen {
+            background: #fff1f0;
+            color: #ff4d4f;
+        }
+
+        .status-badge.closed {
+            background: #f5f5f5;
+            color: var(--text-secondary);
+        }
+
+        .action-btn {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            margin-right: 8px;
+        }
+
+        .action-btn.detail {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .action-btn.freeze {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .action-btn.unfreeze {
+            background: var(--success-color);
+            color: white;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 20px;
+        }
+
+        .page-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .page-btn:hover:not(.active):not(:disabled) {
+            border-color: var(--primary-color);
+        }
+
+        .page-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 详情弹窗 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 24px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .detail-section {
+            margin-bottom: 24px;
+        }
+
+        .detail-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            font-weight: 500;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .user-header-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .user-header-info {
+            flex: 1;
+        }
+
+        .user-header-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .user-header-phone {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .freeze-warning {
+            background: #fff1f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .freeze-warning-title {
+            font-weight: 600;
+            color: var(--danger-color);
+            margin-bottom: 8px;
+        }
+
+        .freeze-warning-content {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Toast提示 -->
+        <div class="toast" id="toast"></div>
+
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>支付系统</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-group-title">首页</div>
+                <div class="nav-item" onclick="goDashboard()">
+                    <i class="fas fa-home"></i>
+                    <span>工作台</span>
+                </div>
+
+                <div class="nav-group-title">商户管理</div>
+                <div class="nav-item" onclick="showPage('merchant')">
+                    <i class="fas fa-store"></i>
+                    <span>商户列表</span>
+                </div>
+                <div class="nav-item" onclick="showPage('merchantReview')">
+                    <i class="fas fa-user-check"></i>
+                    <span>入驻审核</span>
+                </div>
+
+                <div class="nav-group-title">资金管理</div>
+                <div class="nav-item" onclick="showPage('withdraw')">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>提现审核</span>
+                </div>
+                <div class="nav-item" onclick="showPage('transactions')">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>交易流水</span>
+                </div>
+
+                <div class="nav-group-title">账户管理</div>
+                <div class="nav-item active">
+                    <i class="fas fa-users"></i>
+                    <span>用户管理</span>
+                </div>
+                <div class="nav-item" onclick="showPage('accountFreeze')">
+                    <i class="fas fa-snowflake"></i>
+                    <span>账户冻结</span>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 主内容区 -->
+        <div class="main-wrapper">
+            <header class="header">
+                <div class="header-left">
+                    <h1 class="page-title">用户管理</h1>
+                </div>
+                <div class="header-right">
+                    <button class="btn btn-secondary" onclick="exportData()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="btn btn-primary" onclick="refreshList()">
+                        <i class="fas fa-refresh"></i> 刷新
+                    </button>
+                </div>
+            </header>
+
+            <main class="main">
+                <!-- 统计卡片 -->
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-icon total">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">12,580</div>
+                            <div class="stat-label">注册用户</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon auth">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">8,960</div>
+                            <div class="stat-label">已实名认证</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon frozen">
+                            <i class="fas fa-snowflake"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">23</div>
+                            <div class="stat-label">已冻结账户</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon active">
+                            <i class="fas fa-user-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">156</div>
+                            <div class="stat-label">今日新增</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 搜索区域 -->
+                <div class="search-bar">
+                    <div class="search-group">
+                        <span class="search-label">用户姓名：</span>
+                        <input type="text" class="search-input" placeholder="请输入用户姓名" id="searchName">
+                    </div>
+                    <div class="search-group">
+                        <span class="search-label">手机号码：</span>
+                        <input type="text" class="search-input" placeholder="请输入手机号码" id="searchPhone">
+                    </div>
+                    <div class="search-group">
+                        <span class="search-label">认证状态：</span>
+                        <select class="search-select" id="searchAuth">
+                            <option value="">全部</option>
+                            <option value="verified">已认证</option>
+                            <option value="unverified">未认证</option>
+                        </select>
+                    </div>
+                    <div class="search-group">
+                        <span class="search-label">账户状态：</span>
+                        <select class="search-select" id="searchStatus">
+                            <option value="">全部</option>
+                            <option value="normal">正常</option>
+                            <option value="frozen">已冻结</option>
+                            <option value="closed">已销户</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="search()">
+                        <i class="fas fa-search"></i> 查询
+                    </button>
+                </div>
+
+                <!-- 表格 -->
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>用户信息</th>
+                                <th>身份证号</th>
+                                <th>账户余额</th>
+                                <th>认证状态</th>
+                                <th>绑定银行卡</th>
+                                <th>注册时间</th>
+                                <th>账户状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="user-detail">
+                                            <div class="user-name">张三</div>
+                                            <div class="user-phone">138****8888</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>330***********1234</td>
+                                <td>¥8,888.88</td>
+                                <td><span class="auth-badge verified">已认证</span></td>
+                                <td>2张</td>
+                                <td>2026-01-15</td>
+                                <td><span class="status-badge normal">正常</span></td>
+                                <td>
+                                    <button class="action-btn detail" onclick="showDetail('USER001')">详情</button>
+                                    <button class="action-btn freeze" onclick="freezeUser('USER001', this)">冻结</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="user-detail">
+                                            <div class="user-name">李四</div>
+                                            <div class="user-phone">139****6666</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>310***********5678</td>
+                                <td>¥3,500.00</td>
+                                <td><span class="auth-badge verified">已认证</span></td>
+                                <td>1张</td>
+                                <td>2026-02-20</td>
+                                <td><span class="status-badge normal">正常</span></td>
+                                <td>
+                                    <button class="action-btn detail" onclick="showDetail('USER002')">详情</button>
+                                    <button class="action-btn freeze" onclick="freezeUser('USER002', this)">冻结</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="user-detail">
+                                            <div class="user-name">王五</div>
+                                            <div class="user-phone">137****5555</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>320***********9012</td>
+                                <td>¥12,000.00</td>
+                                <td><span class="auth-badge verified">已认证</span></td>
+                                <td>3张</td>
+                                <td>2026-03-10</td>
+                                <td><span class="status-badge frozen">已冻结</span></td>
+                                <td>
+                                    <button class="action-btn detail" onclick="showDetail('USER003')">详情</button>
+                                    <button class="action-btn unfreeze" onclick="unfreezeUser('USER003', this)">解冻</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="user-detail">
+                                            <div class="user-name">赵六</div>
+                                            <div class="user-phone">136****4444</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>-</td>
+                                <td>¥0.00</td>
+                                <td><span class="auth-badge unverified">未认证</span></td>
+                                <td>0张</td>
+                                <td>2026-05-20</td>
+                                <td><span class="status-badge normal">正常</span></td>
+                                <td>
+                                    <button class="action-btn detail" onclick="showDetail('USER004')">详情</button>
+                                    <button class="action-btn freeze" onclick="freezeUser('USER004', this)">冻结</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="user-detail">
+                                            <div class="user-name">钱七</div>
+                                            <div class="user-phone">135****3333</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>330***********3456</td>
+                                <td>¥5,200.00</td>
+                                <td><span class="auth-badge verified">已认证</span></td>
+                                <td>2张</td>
+                                <td>2026-04-05</td>
+                                <td><span class="status-badge normal">正常</span></td>
+                                <td>
+                                    <button class="action-btn detail" onclick="showDetail('USER005')">详情</button>
+                                    <button class="action-btn freeze" onclick="freezeUser('USER005', this)">冻结</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分页 -->
+                <div class="pagination">
+                    <button class="page-btn" disabled>
+                        <i class="fas fa-angle-left"></i>
+                    </button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <button class="page-btn">4</button>
+                    <button class="page-btn">5</button>
+                    <button class="page-btn">
+                        <i class="fas fa-angle-right"></i>
+                    </button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">用户详情</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="user-header">
+                    <div class="user-header-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-header-info">
+                        <div class="user-header-name">张三</div>
+                        <div class="user-header-phone">138****8888</div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">基本信息</div>
+                    <div class="detail-row">
+                        <span class="detail-label">用户ID</span>
+                        <span class="detail-value">USER001</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">真实姓名</span>
+                        <span class="detail-value">张三</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">身份证号</span>
+                        <span class="detail-value">330***********1234</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">认证状态</span>
+                        <span class="detail-value"><span class="auth-badge verified">已认证</span></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">账户状态</span>
+                        <span class="detail-value"><span class="status-badge normal">正常</span></span>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">账户信息</div>
+                    <div class="detail-row">
+                        <span class="detail-label">账户余额</span>
+                        <span class="detail-value" style="color: var(--success-color); font-weight: 600;">¥8,888.88</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">可用余额</span>
+                        <span class="detail-value">¥8,500.00</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">冻结金额</span>
+                        <span class="detail-value">¥388.88</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">绑定银行卡</span>
+                        <span class="detail-value">2张</span>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">注册信息</div>
+                    <div class="detail-row">
+                        <span class="detail-label">注册时间</span>
+                        <span class="detail-value">2026-01-15 10:30:00</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">最后登录</span>
+                        <span class="detail-value">2026-05-22 14:30:00</span>
+                    </div>
+                </div>
+
+                <div style="padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; gap: 12px;">
+                    <button class="btn btn-secondary" onclick="closeModal()" style="flex: 1;">关闭</button>
+                    <button class="btn btn-primary" style="flex: 1;" onclick="showToast('冻结成功')">冻结账户</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function goDashboard() {
+            window.location.href = 'admin-dashboard.html';
+        }
+
+        function showPage(page) {
+            if (page === 'merchantReview') {
+                window.location.href = 'merchant-review.html';
+            } else if (page === 'withdraw') {
+                window.location.href = 'withdraw-review.html';
+            } else {
+                showToast('跳转到：' + page);
+            }
+        }
+
+        function exportData() {
+            showToast('导出成功');
+        }
+
+        function refreshList() {
+            showToast('已刷新');
+        }
+
+        function search() {
+            showToast('查询成功');
+        }
+
+        function showDetail(userId) {
+            document.getElementById('detailModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('show');
+        }
+
+        function freezeUser(userId, btn) {
+            const row = btn.closest('tr');
+            const statusBadge = row.querySelector('.status-badge');
+            statusBadge.className = 'status-badge frozen';
+            statusBadge.textContent = '已冻结';
+            btn.className = 'action-btn unfreeze';
+            btn.textContent = '解冻';
+            btn.onclick = function() { unfreezeUser(userId, this); };
+            showToast('冻结成功');
+        }
+
+        function unfreezeUser(userId, btn) {
+            const row = btn.closest('tr');
+            const statusBadge = row.querySelector('.status-badge');
+            statusBadge.className = 'status-badge normal';
+            statusBadge.textContent = '正常';
+            btn.className = 'action-btn freeze';
+            btn.textContent = '冻结';
+            btn.onclick = function() { freezeUser(userId, this); };
+            showToast('解冻成功');
+        }
+
+        document.getElementById('detailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
